@@ -1,16 +1,18 @@
-import {CardProps} from './offer-card-data.tsx';
+import {CardProps} from './offer-card-data.ts';
 
 function starsToPercent(stars: number, maxStars: number = 5): string {
   return `${(stars / maxStars) * 100}%`;
 }
 
-function OfferCard({img, premiumMark, price, rating, cardTitle, cardType}: CardProps): JSX.Element {
+function OfferCard({img, isPremium, price, rating, cardTitle, cardType}: CardProps): JSX.Element {
 
   return (
     <article className="cities__card place-card">
-      <div className="place-card__mark">
-        <span>{premiumMark}</span>
-      </div>
+      {isPremium && (
+        <div className="place-card__mark">
+          <span>Premium</span>
+        </div>
+      )}
       <div className="cities__image-wrapper place-card__image-wrapper">
         <a href="#">
           <img className="place-card__image" src={img} width="260" height="200" alt="Place image"/>
@@ -44,4 +46,4 @@ function OfferCard({img, premiumMark, price, rating, cardTitle, cardType}: CardP
   );
 }
 
-export default OfferCard;
+export {OfferCard};

@@ -1,10 +1,10 @@
-import apartment01 from './../../../markup/img/apartment-01.jpg';
-import apartment02 from './../../../markup/img/apartment-02.jpg';
-import apartment03 from './../../../markup/img/apartment-03.jpg';
+import apartment01 from '../offer-card/assets/images/apartment-01.jpg';
+import apartment02 from '../offer-card/assets/images/apartment-02.jpg';
+import apartment03 from '../offer-card/assets/images/apartment-03.jpg';
 
-export type CardProps = {
+type CardProps = {
   img: string;
-  premiumMark?: string;
+  isPremium?: boolean;
   price: number;
   rating: number;
   cardTitle: string;
@@ -12,10 +12,10 @@ export type CardProps = {
   id?: string;
 }
 
-export const cards: CardProps[] = [
+const cardsData: CardProps[] = [
   {
     img: apartment01,
-    premiumMark: 'Premium',
+    isPremium: true,
     price: 220,
     rating: 3.7,
     cardTitle: 'Penthouse, 4-5 rooms + 5 balconies',
@@ -40,7 +40,7 @@ export const cards: CardProps[] = [
   },
   {
     img: apartment01,
-    premiumMark: 'Premium',
+    isPremium: true,
     price: 234,
     rating: 4.7,
     cardTitle: 'House in countryside',
@@ -57,3 +57,5 @@ export const cards: CardProps[] = [
   },
 ];
 
+export { cardsData };
+export type { CardProps };

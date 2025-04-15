@@ -50,4 +50,4 @@ function FavoritesEmpty() {
   );
 }
 
-export default FavoritesEmpty;
+export {FavoritesEmpty};

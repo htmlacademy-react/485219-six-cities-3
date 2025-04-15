@@ -130,4 +130,4 @@ function Favorites(): JSX.Element {
   );
 }
 
-export default Favorites;
+export {Favorites};

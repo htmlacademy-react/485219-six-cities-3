@@ -42,4 +42,4 @@ function MainEmpty(): JSX.Element {
   );
 }
 
-export default MainEmpty;
+export {MainEmpty};
