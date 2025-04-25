@@ -16,20 +16,20 @@ type AppProps = {
   cardsData: CardProps[];
 }
 
-function App({cardsData}: AppProps): JSX.Element {
+function App({ cardsData }: AppProps): JSX.Element {
   return (
     <BrowserRouter>
       <Routes>
         <Route path={AppRoute.Main} element={<MainPage cardsData={cardsData}/>}/>
-        <Route path={AppRoute.Offer} element={<Offer/>}/>
+        <Route path={AppRoute.Offer} element={<Offer offers={cardsData} authorizationStatus={AuthorizationStatus.Auth}/>}/>
         <Route path={AppRoute.MainEmpty} element={<MainEmpty/>}/>
         <Route path={AppRoute.NotFound} element={<NotFound/>}/>
 
         <Route
           path={AppRoute.Favorites}
           element={
-            <PrivateRoute authorizationStatus={AuthorizationStatus.NoAuth}>
-              <Favorites/>
+            <PrivateRoute authorizationStatus={AuthorizationStatus.Auth}>
+              <Favorites cardsData={cardsData}/>
             </PrivateRoute>
           }
         />
@@ -37,7 +37,7 @@ function App({cardsData}: AppProps): JSX.Element {
         <Route
           path={AppRoute.FavoritesEmpty}
           element={
-            <PrivateRoute authorizationStatus={AuthorizationStatus.NoAuth}>
+            <PrivateRoute authorizationStatus={AuthorizationStatus.Auth}>
               <FavoritesEmpty/>
             </PrivateRoute>
           }
