@@ -9,6 +9,8 @@ type OffersListProps = {
 function OffersList({ cardsData }: OffersListProps): JSX.Element {
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
+  void activeCardId; //заглушка
+
   const handleCardHover = (id: string) => {
     setActiveCardId(id);
   };
