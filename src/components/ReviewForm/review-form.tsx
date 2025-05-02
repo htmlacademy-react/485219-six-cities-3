@@ -2,21 +2,21 @@ import {Fragment, ReactEventHandler, useState} from 'react';
 
 type ChangeHandler = ReactEventHandler<HTMLInputElement | HTMLTextAreaElement>;
 
+const rating = [
+  {value: 5, label: 'perfect'},
+  {value: 4, label: 'good'},
+  {value: 3, label: 'not bad'},
+  {value: 2, label: 'badly'},
+  {value: 1, label: 'terrible'},
+];
+
 function ReviewForm(): JSX.Element {
   const [review, setReview] = useState({rating: 0, review: ''});
 
-  const handleChenge: ChangeHandler = (event) => {
+  const handleChange: ChangeHandler = (event) => {
     const {name, value} = event.currentTarget;
     setReview({...review, [name]: value});
   };
-
-  const rating = [
-    {value: 5, label: 'perfect'},
-    {value: 4, label: 'good'},
-    {value: 3, label: 'not bad'},
-    {value: 2, label: 'badly'},
-    {value: 1, label: 'terrible'},
-  ];
 
   return (
     <form className="reviews__form form" action="#" method="post">
@@ -30,7 +30,7 @@ function ReviewForm(): JSX.Element {
               value={value}
               id={`${value}-stars`}
               type="radio"
-              onChange={handleChenge}
+              onChange={handleChange}
             />
             <label
               htmlFor={`${value}-stars`}
@@ -49,7 +49,7 @@ function ReviewForm(): JSX.Element {
         id="review"
         name="review"
         placeholder="Tell how was your stay, what you like and what can be improved"
-        onChange={handleChenge}
+        onChange={handleChange}
       >
       </textarea>
       <div className="reviews__button-wrapper">
