@@ -46,14 +46,8 @@ function OffersList({ cardsData, selectedCity }: OffersListProps): JSX.Element {
           {filteredCardsData.map((card) => (
             <OfferCard
               key={card.id}
-              id={card.id}
-              img={card.img}
-              isPremium={card.isPremium}
-              price={card.price}
-              rating={card.rating}
-              cardTitle={card.cardTitle}
-              cardType={card.cardType}
-              city={card.city}
+              card={card}
+              block="cities"
               onMouseEnter={() => handleCardHover(card.id)}
               onMouseLeave={handleCardLeave}
             />
@@ -61,7 +55,7 @@ function OffersList({ cardsData, selectedCity }: OffersListProps): JSX.Element {
         </div>
       </section>
       <div className="cities__right-section">
-        <Map selectedCity={selectedCity} cardsData={filteredCardsData} activeOfferId={activeCardId} />
+        <Map className='cities__map' selectedCity={selectedCity} cardsData={filteredCardsData} activeOfferId={activeCardId} />
       </div>
     </div>
   );

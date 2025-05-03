@@ -1,4 +1,4 @@
-import leaflet from 'leaflet';
+import leaflet, {LayerGroup} from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {URL_MARKER_ACTIVE, URL_MARKER_DEFAULT} from './assets/map-const.ts';
 import {useEffect, useRef} from 'react';
@@ -6,6 +6,7 @@ import {useMap} from '../utils/hooks/use-map.ts';
 import {CardProps} from '../offer-card/offer-card-data.ts';
 
 type MapProps = {
+  className?: string;
   selectedCity: CardProps;
   cardsData: CardProps[];
   activeOfferId?: string | null;
@@ -23,24 +24,33 @@ const activeMarkerIcon = leaflet.icon({
   iconAnchor: [20, 40],
 });
 
-function Map ({selectedCity, cardsData, activeOfferId} : MapProps): JSX.Element {
+function Map ({selectedCity, cardsData, activeOfferId, className} : MapProps): JSX.Element {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const map = useMap({ location: selectedCity.city.location, containerRef: mapContainerRef });
+  const markerLayer = useRef<LayerGroup>(leaflet.layerGroup());
+
+  useEffect(() => {
+    if (map) {
+      map.setView([selectedCity.city.location.latitude, selectedCity.city.location.longitude]);
+      markerLayer.current.addTo(map);
+      markerLayer.current.clearLayers();
+    }
+  }, [selectedCity, map]);
 
   useEffect(() => {
     if (map) {
       cardsData.forEach((card) => {
         leaflet.marker({
-          lat: card.city.location.latitude,
-          lng: card.city.location.longitude,
+          lat: card.location.latitude,
+          lng: card.location.longitude,
         }, {
           icon: card.id === activeOfferId ? activeMarkerIcon : defaultMarkerIcon,
-        }).addTo(map);
+        }).addTo(markerLayer.current);
       });
     }
   }, [activeOfferId, map, cardsData]);
 
-  return <section className="cities__map map" ref={mapContainerRef}/>;
+  return <section className={`${className} map`} ref={mapContainerRef}/>;
 }
 
 export { Map };

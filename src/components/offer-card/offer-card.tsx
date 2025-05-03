@@ -3,13 +3,19 @@ import {convertStarsToPercent} from '../utils/card-utils.ts';
 import {Link} from 'react-router-dom';
 import {AppRoute} from '../utils/routes.ts';
 
+type OfferCardProps = {
+  card: CardProps;
+  block: string;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+}
 
-function OfferCard(card: CardProps): JSX.Element {
-  const {id, img, isPremium, price, rating, cardTitle, cardType, onMouseEnter, onMouseLeave} = card;
+function OfferCard({card, block, onMouseEnter, onMouseLeave}: OfferCardProps): JSX.Element {
+  const {id, img, isPremium, price, rating, cardTitle, cardType} = card;
   return (
     <Link to={AppRoute.Offer.replace(':id', id)}>
       <article
-        className="cities__card place-card"
+        className={`${block}__card place-card`}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
