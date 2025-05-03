@@ -1,15 +1,15 @@
 import {CardProps} from '../offer-card/offer-card-data.ts';
 import {OfferCard} from '../offer-card/offer-card.tsx';
 import {useState} from 'react';
+import {Map} from '../map/map.tsx';
 
 type OffersListProps = {
   cardsData: CardProps[];
+  selectedCity: CardProps;
 }
 
-function OffersList({ cardsData }: OffersListProps): JSX.Element {
+function OffersList({ cardsData, selectedCity }: OffersListProps): JSX.Element {
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
-
-  void activeCardId; //заглушка
 
   const handleCardHover = (id: string) => {
     setActiveCardId(id);
@@ -19,11 +19,14 @@ function OffersList({ cardsData }: OffersListProps): JSX.Element {
     setActiveCardId(null);
   };
 
+  const filteredCardsData: CardProps[] = cardsData.filter((card) => card.city.name === selectedCity.city.name);
+
+
   return (
     <div className="cities__places-container container">
       <section className="cities__places places">
         <h2 className="visually-hidden">Places</h2>
-        <b className="places__found">{cardsData.length} places to stay in Amsterdam</b>
+        <b className="places__found">{filteredCardsData.length} places to stay in {selectedCity.city.name}</b>
         <form className="places__sorting" action="#" method="get">
           <span className="places__sorting-caption">Sort by</span>
           <span className="places__sorting-type" tabIndex={0}>
@@ -40,7 +43,7 @@ function OffersList({ cardsData }: OffersListProps): JSX.Element {
           </ul>
         </form>
         <div className="cities__places-list places__list tabs__content">
-          {cardsData.map((card) => (
+          {filteredCardsData.map((card) => (
             <OfferCard
               key={card.id}
               id={card.id}
@@ -58,7 +61,7 @@ function OffersList({ cardsData }: OffersListProps): JSX.Element {
         </div>
       </section>
       <div className="cities__right-section">
-        <section className="cities__map map"></section>
+        <Map selectedCity={selectedCity} cardsData={filteredCardsData} activeOfferId={activeCardId} />
       </div>
     </div>
   );

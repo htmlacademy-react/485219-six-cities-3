@@ -1,12 +1,13 @@
 import {CardProps} from './offer-card-data.ts';
 import {convertStarsToPercent} from '../utils/card-utils.ts';
 import {Link} from 'react-router-dom';
+import {AppRoute} from '../utils/routes.ts';
 
 
 function OfferCard(card: CardProps): JSX.Element {
   const {id, img, isPremium, price, rating, cardTitle, cardType, onMouseEnter, onMouseLeave} = card;
   return (
-    <Link to={`/offer/${id}`}>
+    <Link to={AppRoute.Offer.replace(':id', id)}>
       <article
         className="cities__card place-card"
         onMouseEnter={onMouseEnter}
@@ -18,9 +19,7 @@ function OfferCard(card: CardProps): JSX.Element {
           </div>
         )}
         <div className="cities__image-wrapper place-card__image-wrapper">
-          <a href="#">
-            <img className="place-card__image" src={img} width="260" height="200" alt="Place image"/>
-          </a>
+          <img className="place-card__image" src={img} width="260" height="200" alt="Place image"/>
         </div>
         <div className="place-card__info">
           <div className="place-card__price-wrapper">
