@@ -32,7 +32,7 @@ function OffersList({ cardsData, selectedCity }: OffersListProps): JSX.Element {
           <span className="places__sorting-type" tabIndex={0}>
             Popular
             <svg className="places__sorting-arrow" width="7" height="4">
-              <use xlinkHref="#icon-arrow-select"></use>
+              <use xlinkHref="#icon-arrow-select" />
             </svg>
           </span>
           <ul className="places__options places__options--custom places__options--opened">
@@ -46,14 +46,8 @@ function OffersList({ cardsData, selectedCity }: OffersListProps): JSX.Element {
           {filteredCardsData.map((card) => (
             <OfferCard
               key={card.id}
-              id={card.id}
-              img={card.img}
-              isPremium={card.isPremium}
-              price={card.price}
-              rating={card.rating}
-              cardTitle={card.cardTitle}
-              cardType={card.cardType}
-              city={card.city}
+              card={card}
+              block="cities"
               onMouseEnter={() => handleCardHover(card.id)}
               onMouseLeave={handleCardLeave}
             />
@@ -61,7 +55,7 @@ function OffersList({ cardsData, selectedCity }: OffersListProps): JSX.Element {
         </div>
       </section>
       <div className="cities__right-section">
-        <Map selectedCity={selectedCity} cardsData={filteredCardsData} activeOfferId={activeCardId} />
+        <Map className='cities__map' selectedCity={selectedCity} cardsData={filteredCardsData} activeOfferId={activeCardId} />
       </div>
     </div>
   );
