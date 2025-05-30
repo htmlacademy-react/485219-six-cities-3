@@ -1,12 +1,15 @@
 import {City} from '../utils/const.ts';
+import {useAppDispatch} from '../../store';
+import {setCity} from '../../store/actions.ts';
 
 type CityTabsProps = {
   cities: readonly City[];
   selectedCity: City;
-  onCitySelect: (city: City) => void;
 }
 
-function CityTabs({cities, selectedCity, onCitySelect}: CityTabsProps) {
+function CityTabs({cities, selectedCity}: CityTabsProps) {
+  const dispatch = useAppDispatch();
+
   return (
     <ul className="locations__list tabs__list">
       {cities.map((city) => (
@@ -18,7 +21,7 @@ function CityTabs({cities, selectedCity, onCitySelect}: CityTabsProps) {
               evt.preventDefault();
 
               if (selectedCity !== city) {
-                onCitySelect(city);
+                dispatch(setCity(city));
               }
             }}
           >
