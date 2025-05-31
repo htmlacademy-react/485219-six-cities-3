@@ -7,8 +7,9 @@ import {City} from '../../components/utils/const.ts';
 import {useAppSelector} from '../../store';
 
 function MainPage(): JSX.Element {
-  const selectedCity = useAppSelector((state) => state.city);
-  const selectedCityObj = useAppSelector((state) => state.offers).find((card) => card.city.name === selectedCity);
+  const selectedCity = useAppSelector((state) => state.offers.city);
+  const offers = useAppSelector((state) => state.offers.offers);
+  const selectedCityObj = offers.find((card) => card.city.name === selectedCity);
 
   if (!selectedCityObj) {
     throw new Error('No city selected');
