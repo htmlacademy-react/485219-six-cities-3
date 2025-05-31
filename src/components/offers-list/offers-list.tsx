@@ -2,14 +2,15 @@ import {CardProps} from '../offer-card/offer-card-data.ts';
 import {OfferCard} from '../offer-card/offer-card.tsx';
 import {useState} from 'react';
 import {Map} from '../map/map.tsx';
+import {useAppSelector} from '../../store';
 
 type OffersListProps = {
-  cardsData: CardProps[];
   selectedCity: CardProps;
 }
 
-function OffersList({ cardsData, selectedCity }: OffersListProps): JSX.Element {
+function OffersList({ selectedCity }: OffersListProps): JSX.Element {
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const cardsData = useAppSelector((state) => state.offers);
 
   const handleCardHover = (id: string) => {
     setActiveCardId(id);

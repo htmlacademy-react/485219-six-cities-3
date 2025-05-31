@@ -1,21 +1,14 @@
-import {CardProps} from '../../components/offer-card/offer-card-data.ts';
 import {AppRoute} from '../../components/utils/routes.ts';
 import {Link} from 'react-router-dom';
 import {OffersList} from '../../components/offers-list/offers-list.tsx';
 import {CityTabs} from '../../components/city-tabs/city-tabs.tsx';
-import {useState} from 'react';
 import {CITIES} from '../../components/utils/const.ts';
 import {City} from '../../components/utils/const.ts';
+import {useAppSelector} from '../../store';
 
-type MainPageProps = {
-  cardsData: CardProps[];
-}
-
-const defaultCity = CITIES[3] as City;
-
-function MainPage({ cardsData }: MainPageProps): JSX.Element {
-  const [selectedCity, setSelectedCity] = useState(defaultCity);
-  const selectedCityObj = cardsData.find((card) => card.city.name === selectedCity);
+function MainPage(): JSX.Element {
+  const selectedCity = useAppSelector((state) => state.city);
+  const selectedCityObj = useAppSelector((state) => state.offers).find((card) => card.city.name === selectedCity);
 
   if (!selectedCityObj) {
     throw new Error('No city selected');
@@ -56,11 +49,11 @@ function MainPage({ cardsData }: MainPageProps): JSX.Element {
         <h1 className="visually-hidden">Cities</h1>
         <div className="tabs">
           <section className="locations container">
-            <CityTabs cities={CITIES} selectedCity={selectedCity} onCitySelect={setSelectedCity} />
+            <CityTabs cities={CITIES} selectedCity={selectedCity as City} />
           </section>
         </div>
         <div className="cities">
-          <OffersList cardsData={cardsData} selectedCity={selectedCityObj} />
+          <OffersList selectedCity={selectedCityObj} />
         </div>
       </main>
     </div>

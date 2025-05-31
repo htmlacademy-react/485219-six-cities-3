@@ -20,7 +20,7 @@ function App({ cardsData }: AppProps): JSX.Element {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path={AppRoute.Main} element={<MainPage cardsData={cardsData}/>}/>
+        <Route path={AppRoute.Main} element={<MainPage />}/>
         <Route path={AppRoute.Offer} element={<Offer offers={cardsData} authorizationStatus={AuthorizationStatus.Auth}/>}/>
         <Route path={AppRoute.MainEmpty} element={<MainEmpty/>}/>
         <Route path={AppRoute.NotFound} element={<NotFound/>}/>
