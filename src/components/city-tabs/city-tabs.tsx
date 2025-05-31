@@ -1,6 +1,6 @@
 import {City} from '../utils/const.ts';
 import {useAppDispatch} from '../../store';
-import {setCity} from '../../store/actions.ts';
+import {setCity} from '../../store/offers-slice';
 
 type CityTabsProps = {
   cities: readonly City[];
