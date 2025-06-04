@@ -7,6 +7,7 @@ import {City} from '../../components/utils/const.ts';
 import {useAppDispatch, useAppSelector} from '../../store';
 import {fetchOffers} from '../../store/offers-slice.ts';
 import {useEffect} from 'react';
+import {Spinner} from '../../components/spinner/spinner.tsx';
 
 function MainPage(): JSX.Element {
   const dispatch = useAppDispatch();
@@ -20,7 +21,7 @@ function MainPage(): JSX.Element {
   }, [dispatch]);
 
   if (isLoading) {
-    return <div>Loading offers...</div>;
+    return <Spinner />;
   }
 
   if (!selectedCityObj) {
