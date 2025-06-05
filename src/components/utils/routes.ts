@@ -8,4 +8,11 @@ enum AppRoute {
   NotFound = '*'
 }
 
-export { AppRoute };
+enum APIRoute {
+  Offers = '/offers',
+  Favorite = '/favorite',
+  Login = '/login',
+  Logout = '/logout',
+}
+
+export { AppRoute, APIRoute };

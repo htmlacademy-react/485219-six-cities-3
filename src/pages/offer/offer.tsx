@@ -1,30 +1,52 @@
-import {AppRoute} from '../../components/utils/routes.ts';
-import {Link, useParams} from 'react-router-dom';
-import {CardProps} from '../../components/offer-card/offer-card-data.ts';
-import {convertStarsToPercent} from '../../components/utils/card-utils.ts';
-import {Reviews} from '../../components/Review/review.tsx';
-import {AuthorizationStatus} from '../../components/utils/auth-statuses.ts';
-import {Map} from '../../components/map/map.tsx';
-import {OfferCard} from '../../components/offer-card/offer-card.tsx';
+import { useEffect } from 'react';
+import { AppRoute } from '../../components/utils/routes.ts';
+import { Link, useParams } from 'react-router-dom';
+import { convertStarsToPercent } from '../../components/utils/card-utils.ts';
+import { Reviews } from '../../components/Review/review.tsx';
+import { AuthorizationStatus } from '../../components/utils/auth-statuses.ts';
+import { Map } from '../../components/map/map.tsx';
+import { OfferCard } from '../../components/offer-card/offer-card.tsx';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { fetchOfferById, fetchNearbyOffers, clearCurrentOffer } from '../../store/offers-slice';
 
 type OfferProps = {
-  offers: CardProps[];
   authorizationStatus: AuthorizationStatus;
-}
+};
 
-function Offer({offers, authorizationStatus}: OfferProps): JSX.Element {
-  const {id} = useParams<{ id: string }>();
+function Offer({ authorizationStatus }: OfferProps): JSX.Element {
+  const { id } = useParams<{ id: string }>();
+  const dispatch = useAppDispatch();
+  const { currentOffer, offers, isCurrentOfferLoading } = useAppSelector((state) => ({
+    currentOffer: state.offers.currentOffer,
+    offers: state.offers.offers,
+    isCurrentOfferLoading: state.offers.isCurrentOfferLoading
+  }));
 
-  const currentOffer = offers.find((card) => card.id === id);
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchOfferById(id));
+      dispatch(fetchNearbyOffers(id));
+    }
 
-  const offersCardsByCity = offers.filter((card) => card.city.name === currentOffer?.city.name); //моковый массив предложений по городу
-  const nearOffersCards = offersCardsByCity.slice(0, 3); // моковый массив ближайших предложений
+    return () => {
+      dispatch(clearCurrentOffer());
+    };
+  }, [dispatch, id]);
+
+  if (isCurrentOfferLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (!currentOffer) {
     return <p>Offer not found</p>;
   }
 
-  const nearOffersWithCurrent: CardProps[] = [currentOffer, ...nearOffersCards];
+  const nearOffersCards = offers.filter((offer) =>
+    offer.city.name === currentOffer.city.name &&
+    offer.id !== currentOffer.id
+  ).slice(0, 3);
+
+  const nearOffersWithCurrent = [currentOffer, ...nearOffersCards];
 
   return (
     <div className="page">
@@ -61,24 +83,11 @@ function Offer({offers, authorizationStatus}: OfferProps): JSX.Element {
         <section className="offer">
           <div className="offer__gallery-container container">
             <div className="offer__gallery">
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src={currentOffer.img} alt="Photo studio"/>
-              </div>
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src={currentOffer.img} alt="Photo studio"/>
-              </div>
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src={currentOffer.img} alt="Photo studio"/>
-              </div>
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src={currentOffer.img} alt="Photo studio"/>
-              </div>
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src={currentOffer.img} alt="Photo studio"/>
-              </div>
-              <div className="offer__image-wrapper">
-                <img className="offer__image" src={currentOffer.img} alt="Photo studio"/>
-              </div>
+              {currentOffer.images.map((image, index) => (
+                <div key={currentOffer.id} className="offer__image-wrapper">
+                  <img className="offer__image" src={image} alt={`Photo ${index + 1}`} />
+                </div>
+              ))}
             </div>
           </div>
           <div className="offer__container container">
@@ -103,17 +112,17 @@ function Offer({offers, authorizationStatus}: OfferProps): JSX.Element {
                   <span style={{width: convertStarsToPercent(currentOffer.rating)}}></span>
                   <span className="visually-hidden">Rating</span>
                 </div>
-                <span className="offer__rating-value rating__value">4.8</span>
+                <span className="offer__rating-value rating__value">{currentOffer.rating}</span>
               </div>
               <ul className="offer__features">
                 <li className="offer__feature offer__feature--entire">
-                  Apartment
+                  {currentOffer.cardType}
                 </li>
                 <li className="offer__feature offer__feature--bedrooms">
-                  3 Bedrooms
+                  {currentOffer.bedrooms} Bedrooms
                 </li>
                 <li className="offer__feature offer__feature--adults">
-                  Max 4 adults
+                  Max {currentOffer.maxAdults} adults
                 </li>
               </ul>
               <div className="offer__price">
@@ -123,59 +132,31 @@ function Offer({offers, authorizationStatus}: OfferProps): JSX.Element {
               <div className="offer__inside">
                 <h2 className="offer__inside-title">What&apos;s inside</h2>
                 <ul className="offer__inside-list">
-                  <li className="offer__inside-item">
-                    Wi-Fi
-                  </li>
-                  <li className="offer__inside-item">
-                    Washing machine
-                  </li>
-                  <li className="offer__inside-item">
-                    Towels
-                  </li>
-                  <li className="offer__inside-item">
-                    Heating
-                  </li>
-                  <li className="offer__inside-item">
-                    Coffee machine
-                  </li>
-                  <li className="offer__inside-item">
-                    Baby seat
-                  </li>
-                  <li className="offer__inside-item">
-                    Kitchen
-                  </li>
-                  <li className="offer__inside-item">
-                    Dishwasher
-                  </li>
-                  <li className="offer__inside-item">
-                    Cabel TV
-                  </li>
-                  <li className="offer__inside-item">
-                    Fridge
-                  </li>
+                  {currentOffer.goods.map((good) => (
+                    <li key={good} className="offer__inside-item">
+                      {good}
+                    </li>
+                  ))}
                 </ul>
               </div>
               <div className="offer__host">
                 <h2 className="offer__host-title">Meet the host</h2>
                 <div className="offer__host-user user">
-                  <div className="offer__avatar-wrapper offer__avatar-wrapper--pro user__avatar-wrapper">
-                    <img className="offer__avatar user__avatar" src="img/avatar-angelina.jpg" width="74" height="74" alt="Host avatar"/>
+                  <div className={`offer__avatar-wrapper ${currentOffer.host.isPro ? 'offer__avatar-wrapper--pro' : ''} user__avatar-wrapper`}>
+                    <img className="offer__avatar user__avatar" src={currentOffer.host.avatarUrl} width="74" height="74" alt="Host avatar"/>
                   </div>
                   <span className="offer__user-name">
-                    Angelina
+                    {currentOffer.host.name}
                   </span>
-                  <span className="offer__user-status">
-                    Pro
-                  </span>
+                  {currentOffer.host.isPro && (
+                    <span className="offer__user-status">
+                      Pro
+                    </span>
+                  )}
                 </div>
                 <div className="offer__description">
                   <p className="offer__text">
-                    A quiet cozy and picturesque that hides behind a a river by the unique lightness of Amsterdam. The
-                    building is green and from 18th century.
-                  </p>
-                  <p className="offer__text">
-                    An independent House, strategically located between Rembrand Square and National Opera, but where
-                    the bustle of the city comes to rest in this alley flowery and colorful.
+                    {currentOffer.description}
                   </p>
                 </div>
               </div>
@@ -210,4 +191,4 @@ function Offer({offers, authorizationStatus}: OfferProps): JSX.Element {
   );
 }
 
-export {Offer};
+export { Offer };

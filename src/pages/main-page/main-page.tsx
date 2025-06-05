@@ -4,15 +4,28 @@ import {OffersList} from '../../components/offers-list/offers-list.tsx';
 import {CityTabs} from '../../components/city-tabs/city-tabs.tsx';
 import {CITIES} from '../../components/utils/const.ts';
 import {City} from '../../components/utils/const.ts';
-import {useAppSelector} from '../../store';
+import {useAppDispatch, useAppSelector} from '../../store';
+import {fetchOffers} from '../../store/offers-slice.ts';
+import {useEffect} from 'react';
+import {Spinner} from '../../components/spinner/spinner.tsx';
 
 function MainPage(): JSX.Element {
+  const dispatch = useAppDispatch();
   const selectedCity = useAppSelector((state) => state.offers.city);
   const offers = useAppSelector((state) => state.offers.offers);
+  const isLoading = useAppSelector((state) => state.offers.isOffersDataLoading);
   const selectedCityObj = offers.find((card) => card.city.name === selectedCity);
 
+  useEffect(() => {
+    dispatch(fetchOffers());
+  }, [dispatch]);
+
+  if (isLoading) {
+    return <Spinner />;
+  }
+
   if (!selectedCityObj) {
-    throw new Error('No city selected');
+    return <div>No offers available for {selectedCity}</div>;
   }
 
   return (

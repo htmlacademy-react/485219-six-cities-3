@@ -1,7 +1,7 @@
 import {CardProps} from '../offer-card/offer-card-data.ts';
 import {convertStarsToPercent} from '../utils/card-utils.ts';
 
-function FavoriresCard(card: CardProps): JSX.Element {
+function FavoritesCard(card: CardProps): JSX.Element {
   const {img, isPremium, price, rating, cardTitle, cardType} = card;
   return (
     <article className="favorites__card place-card">
@@ -43,4 +43,4 @@ function FavoriresCard(card: CardProps): JSX.Element {
   );
 }
 
-export {FavoriresCard};
+export {FavoritesCard};

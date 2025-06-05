@@ -1,13 +1,11 @@
+import {useSelector} from 'react-redux';
+import {FavoritesCard} from '../favorites-card/favorires-card.tsx';
+import {getFavoriteOffers} from '../../store/selectors.ts';
 import {CardProps} from '../offer-card/offer-card-data.ts';
-import {FavoriresCard} from '../favorites-card/favorires-card.tsx';
-
-type FavoritesListProps = {
-  cardsData: CardProps[];
-}
 
 function groupByCity(cards: CardProps[]): Record<string, CardProps[]> {
-  return cards.reduce((acc, card) => {
-    const city: string = card.city.name;
+  return cards.reduce<Record<string, CardProps[]>>((acc, card) => {
+    const city = card.city.name;
 
     if (!acc[city]) {
       acc[city] = [];
@@ -15,12 +13,21 @@ function groupByCity(cards: CardProps[]): Record<string, CardProps[]> {
 
     acc[city].push(card);
     return acc;
-  }, {} as Record<string, CardProps[]>);
+  }, {});
 }
 
-function FavoritesList({cardsData}: FavoritesListProps) {
-  const groupedByCity = groupByCity(cardsData);
+function FavoritesList(): JSX.Element {
+  const favoriteOffers = useSelector(getFavoriteOffers);
+  const groupedByCity = groupByCity(favoriteOffers);
   const cities = Object.keys(groupedByCity);
+
+  if (cities.length === 0) {
+    return (
+      <div className="favorites__status">
+        <p>No favorites yet</p>
+      </div>
+    );
+  }
 
   return (
     <ul className="favorites__list">
@@ -35,7 +42,7 @@ function FavoritesList({cardsData}: FavoritesListProps) {
           </div>
           <div className="favorites__places">
             {groupedByCity[city].map((card) => (
-              <FavoriresCard key={card.id} {...card} />
+              <FavoritesCard key={card.id} {...card} />
             ))}
           </div>
         </li>
@@ -44,4 +51,4 @@ function FavoritesList({cardsData}: FavoritesListProps) {
   );
 }
 
-export {FavoritesList};
+export { FavoritesList };
