@@ -3,6 +3,7 @@ import { CITIES } from '../components/utils/const.ts';
 import { AuthorizationStatus } from '../components/utils/auth-statuses.ts';
 import { api } from '../services/api';
 import type { CardProps } from '../components/offer-card/offer-card-data.ts';
+import {loginAction} from './api-actions.ts';
 
 type ServerOffer = {
   id: string;
@@ -61,7 +62,7 @@ type OffersState = {
   city: string;
   offers: CardProps[];
   currentOffer: CardProps | null;
-  authorizationStatus: string;
+  authorizationStatus: AuthorizationStatus;
   isOffersDataLoading: boolean;
   isCurrentOfferLoading: boolean;
   error: string | null;
@@ -115,6 +116,10 @@ export const fetchNearbyOffers = createAsyncThunk<CardProps[], string>(
   }
 );
 
+export const setAuthorizationStatus = createAction<AuthorizationStatus>(
+  'user/setAuthorizationStatus'
+);
+
 const offersSlice = createSlice({
   name: 'offers',
   initialState,
@@ -163,6 +168,16 @@ const offersSlice = createSlice({
       .addCase(fetchOfferById.rejected, (state, action) => {
         state.isCurrentOfferLoading = false;
         state.error = action.payload as string;
+      })
+      .addCase(setAuthorizationStatus, (state, action) => {
+        state.authorizationStatus = action.payload;
+      })
+      .addCase(loginAction.fulfilled, (state, action) => {
+        state.authorizationStatus = AuthorizationStatus.Auth;
+        state.email = action.payload.email;
+      })
+      .addCase(loginAction.rejected, (state) => {
+        state.authorizationStatus = AuthorizationStatus.NoAuth;
       })
       .addCase(fetchNearbyOffers.fulfilled, (state, action) => {
         action.payload.forEach((offer) => {
