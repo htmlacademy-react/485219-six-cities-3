@@ -12,12 +12,17 @@ import { AuthorizationStatus } from '../utils/auth-statuses.ts';
 import { useEffect } from 'react';
 import { useAppDispatch } from '../../store';
 import { fetchOffers } from '../../store/offers-slice';
+import {checkAuthAction} from '../../store/api-actions.ts';
 
 function App(): JSX.Element {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch(fetchOffers());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(checkAuthAction());
   }, [dispatch]);
 
   return (
@@ -34,7 +39,7 @@ function App(): JSX.Element {
         <Route
           path={AppRoute.Favorites}
           element={
-            <PrivateRoute authorizationStatus={AuthorizationStatus.Auth}>
+            <PrivateRoute>
               <Favorites />
             </PrivateRoute>
           }
@@ -43,7 +48,7 @@ function App(): JSX.Element {
         <Route
           path={AppRoute.FavoritesEmpty}
           element={
-            <PrivateRoute authorizationStatus={AuthorizationStatus.Auth}>
+            <PrivateRoute>
               <FavoritesEmpty />
             </PrivateRoute>
           }

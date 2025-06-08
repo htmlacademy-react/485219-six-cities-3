@@ -2,6 +2,11 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosE
 import { getToken } from './token';
 import { StatusCodes } from 'http-status-codes';
 import { processErrorHandle } from './process-error-handle';
+import {store} from '../store';
+import {setAuthorizationStatus} from '../store/offers-slice.ts';
+import {AuthorizationStatus} from '../components/utils/auth-statuses.ts';
+import {redirectToRoute} from '../store/actions.ts';
+import {AppRoute} from '../components/utils/routes.ts';
 
 const BACKEND_URL = 'https://15.design.htmlacademy.pro/six-cities';
 const REQUEST_TIMEOUT = 5000;
@@ -44,6 +49,23 @@ api.interceptors.response.use(
       processErrorHandle(detailMessage.message);
     }
     throw error;
+  }
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError<DetailMessageType>) => {
+    if (error.response?.status === StatusCodes.UNAUTHORIZED) {
+      store.dispatch(setAuthorizationStatus(AuthorizationStatus.NoAuth));
+      store.dispatch(redirectToRoute(AppRoute.Login));
+    }
+
+    if (error.response && shouldDisplayError(error.response)) {
+      const detailMessage = error.response.data;
+      processErrorHandle(detailMessage.message);
+    }
+
+    return Promise.reject(error);
   }
 );
 
