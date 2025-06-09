@@ -1,22 +1,22 @@
-import { Fragment, useState, FormEvent } from 'react';
-import { useAppDispatch, useAppSelector } from '../../store';
-import { postComment } from '../../store/api-actions';
+import {Fragment, useState, FormEvent} from 'react';
+import {useAppDispatch, useAppSelector} from '../../store';
+import {postComment} from '../../store/api-actions';
 
 const rating = [
-  { value: 5, label: 'perfect' },
-  { value: 4, label: 'good' },
-  { value: 3, label: 'not bad' },
-  { value: 2, label: 'badly' },
-  { value: 1, label: 'terrible' },
+  {value: 5, label: 'perfect'},
+  {value: 4, label: 'good'},
+  {value: 3, label: 'not bad'},
+  {value: 2, label: 'badly'},
+  {value: 1, label: 'terrible'},
 ];
 
 type ReviewFormProps = {
   offerId: string;
 };
 
-function ReviewForm({ offerId }: ReviewFormProps): JSX.Element {
+function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
   const dispatch = useAppDispatch();
-  const { isSending } = useAppSelector((state) => state.comments);
+  const {isSending} = useAppSelector((state) => state.comments);
   const [formData, setFormData] = useState({
     comment: '',
     rating: 0,
@@ -25,10 +25,10 @@ function ReviewForm({ offerId }: ReviewFormProps): JSX.Element {
   const handleSubmit = (evt: FormEvent) => {
     evt.preventDefault();
     if (formData.comment && formData.rating) {
-      dispatch(postComment({ offerId, commentData: formData }))
+      dispatch(postComment({offerId, commentData: formData}))
         .unwrap()
         .then(() => {
-          setFormData({ comment: '', rating: 0 });
+          setFormData({comment: '', rating: 0});
         });
     }
   };
@@ -39,7 +39,7 @@ function ReviewForm({ offerId }: ReviewFormProps): JSX.Element {
         Your review
       </label>
       <div className="reviews__rating-form form__rating">
-        {rating.map(({ value, label }) => (
+        {rating.map(({value, label}) => (
           <Fragment key={value}>
             <input
               className="form__rating-input visually-hidden"
@@ -48,7 +48,7 @@ function ReviewForm({ offerId }: ReviewFormProps): JSX.Element {
               id={`${value}-stars`}
               type="radio"
               checked={formData.rating === value}
-              onChange={() => setFormData({ ...formData, rating: value })}
+              onChange={() => setFormData({...formData, rating: value})}
               disabled={isSending}
             />
             <label
@@ -69,11 +69,9 @@ function ReviewForm({ offerId }: ReviewFormProps): JSX.Element {
         name="review"
         placeholder="Tell how was your stay, what you like and what can be improved"
         value={formData.comment}
-        onChange={(e) =>
-          setFormData({ ...formData, comment: e.target.value })
-        }
-        disabled={isSending}
-      ></textarea>
+        onChange={(e) => setFormData({...formData, comment: e.target.value})} disabled={isSending}
+      >
+      </textarea>
       <div className="reviews__button-wrapper">
         <p className="reviews__help">
           To submit review please make sure to set{' '}
@@ -97,4 +95,4 @@ function ReviewForm({ offerId }: ReviewFormProps): JSX.Element {
   );
 }
 
-export { ReviewForm };
+export {ReviewForm};

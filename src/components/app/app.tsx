@@ -8,7 +8,6 @@ import { NotFound } from '../../pages/not-found/not-found.tsx';
 import { Offer } from '../../pages/offer/offer.tsx';
 import { PrivateRoute } from '../private-route/private-route.tsx';
 import { Favorites } from '../../pages/favorites/favorites.tsx';
-import { AuthorizationStatus } from '../utils/auth-statuses.ts';
 import { useEffect } from 'react';
 import { useAppDispatch } from '../../store';
 import { fetchOffers } from '../../store/offers-slice';
@@ -31,7 +30,7 @@ function App(): JSX.Element {
         <Route path={AppRoute.Main} element={<MainPage />} />
         <Route
           path={AppRoute.Offer}
-          element={<Offer authorizationStatus={AuthorizationStatus.Auth} />}
+          element={<Offer />}
         />
         <Route path={AppRoute.MainEmpty} element={<MainEmpty />} />
         <Route path={AppRoute.NotFound} element={<NotFound />} />
