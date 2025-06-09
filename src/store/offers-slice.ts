@@ -67,6 +67,7 @@ type OffersState = {
   isCurrentOfferLoading: boolean;
   error: string | null;
   email: string | null;
+  currentOfferError: string | null;
 };
 
 const initialState: OffersState = {
@@ -78,6 +79,7 @@ const initialState: OffersState = {
   isCurrentOfferLoading: false,
   error: null,
   email: null,
+  currentOfferError: null,
 };
 
 export const fetchOffers = createAsyncThunk<CardProps[], void>(
@@ -163,7 +165,7 @@ const offersSlice = createSlice({
       })
       .addCase(fetchOfferById.rejected, (state, action) => {
         state.isCurrentOfferLoading = false;
-        state.error = action.payload as string;
+        state.currentOfferError = action.payload as string;
       })
       .addCase(loginAction.fulfilled, (state, action) => {
         state.authorizationStatus = AuthorizationStatus.Auth;

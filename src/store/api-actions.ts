@@ -19,7 +19,8 @@ import {
   setAuthorizationStatus,
   setUserData,
   clearUserData
-} from './user-slice'; // Импортируем из user-slice
+} from './user-slice';
+import { Review, CommentFormData } from '../types/comment.ts';
 
 export const clearErrorAction = createAsyncThunk(
   'app/clearError',
@@ -108,5 +109,53 @@ export const logoutAction = createAsyncThunk<
     removeToken();
     dispatch(setAuthorizationStatus(AuthorizationStatus.NoAuth));
     dispatch(clearUserData());
+    dispatch(redirectToRoute(AppRoute.Main)); // Добавляем перенаправление на главную
+  }
+);
+
+export const postComment = createAsyncThunk<
+  Review,
+  { offerId: string; commentData: CommentFormData },
+  {
+    dispatch: AppDispatch;
+    state: RootState;
+    extra: AxiosInstance;
+  }
+>(
+  'comments/postComment',
+  async ({ offerId, commentData }, { dispatch, extra: api }) => {
+    try {
+      const { data } = await api.post<Review>( // Заменили Comment на Review
+        `${APIRoute.Comments}/${offerId}`,
+        commentData
+      );
+      return data;
+    } catch (error) {
+      dispatch(setError('Failed to post comment'));
+      throw error;
+    }
+  }
+);
+
+export const fetchComments = createAsyncThunk<
+  Review[],
+  string,
+  {
+    dispatch: AppDispatch;
+    state: RootState;
+    extra: AxiosInstance;
+  }
+>(
+  'comments/fetchComments',
+  async (offerId, { dispatch, extra: api }) => {
+    try {
+      const { data } = await api.get<Review[]>( // Заменили Comment[] на Review[]
+        `${APIRoute.Comments}/${offerId}`
+      );
+      return data;
+    } catch (error) {
+      dispatch(setError('Failed to load comments'));
+      throw error;
+    }
   }
 );
