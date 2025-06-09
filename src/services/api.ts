@@ -3,10 +3,10 @@ import { getToken } from './token';
 import { StatusCodes } from 'http-status-codes';
 import { processErrorHandle } from './process-error-handle';
 import {store} from '../store';
-import {setAuthorizationStatus} from '../store/offers-slice.ts';
 import {AuthorizationStatus} from '../components/utils/auth-statuses.ts';
 import {redirectToRoute} from '../store/actions.ts';
 import {AppRoute} from '../components/utils/routes.ts';
+import {setAuthorizationStatus} from '../store/user-slice.ts';
 
 const BACKEND_URL = 'https://15.design.htmlacademy.pro/six-cities';
 const REQUEST_TIMEOUT = 5000;

@@ -1,24 +1,25 @@
-import {AxiosInstance} from 'axios';
-import {createAsyncThunk} from '@reduxjs/toolkit';
-import {AppDispatch, OffersState, RootState} from './types/store-types.ts';
-import {CardProps} from '../components/offer-card/offer-card-data.ts';
+import { AxiosInstance } from 'axios';
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import { AppDispatch, RootState } from './types/store-types.ts';
+import { CardProps } from '../components/offer-card/offer-card-data.ts';
 import {
   loadOffers,
-  requireAuthorization,
   setError,
   setOffersDataLoadingStatus,
-  redirectToRoute,
-  setUserEmail
+  redirectToRoute
 } from './actions';
-import {saveToken, removeToken} from '../services/token';
-import {APIRoute, AppRoute} from '../components/utils/routes.ts';
-import {AuthorizationStatus} from '../components/utils/auth-statuses.ts';
-import {TIMEOUT_SHOW_ERROR} from '../components/utils/const.ts';
-
-import {AuthData} from '../types/auth-data';
-import {UserData} from '../types/user-data';
-import {store} from './';
-import {setAuthorizationStatus} from './offers-slice.ts';
+import { saveToken, removeToken } from '../services/token';
+import { APIRoute, AppRoute } from '../components/utils/routes.ts';
+import { AuthorizationStatus } from '../components/utils/auth-statuses.ts';
+import { TIMEOUT_SHOW_ERROR } from '../components/utils/const.ts';
+import { AuthData } from '../types/auth-data';
+import { UserData } from '../types/user-data';
+import { store } from './';
+import {
+  setAuthorizationStatus,
+  setUserData,
+  clearUserData
+} from './user-slice'; // Импортируем из user-slice
 
 export const clearErrorAction = createAsyncThunk(
   'app/clearError',
@@ -35,15 +36,14 @@ export const fetchOffersAction = createAsyncThunk<
   undefined,
   {
     dispatch: AppDispatch;
-    state: OffersState;
+    state: RootState;
     extra: AxiosInstance;
   }
 >(
   'data/fetchOffers',
-
-  async (_arg, {dispatch, extra: api}) => {
+  async (_arg, { dispatch, extra: api }) => {
     dispatch(setOffersDataLoadingStatus(true));
-    const {data} = await api.get<CardProps[]>(APIRoute.Offers);
+    const { data } = await api.get<CardProps[]>(APIRoute.Offers);
     dispatch(setOffersDataLoadingStatus(false));
     dispatch(loadOffers(data));
   }
@@ -55,12 +55,15 @@ export const checkAuthAction = createAsyncThunk<void, undefined, {
   extra: AxiosInstance;
 }>(
   'user/checkAuth',
-  async (_arg, {dispatch, extra: api}) => {
+  async (_arg, { dispatch, extra: api }) => {
     try {
-      await api.get(APIRoute.Login);
-      dispatch(requireAuthorization(AuthorizationStatus.Auth));
+      const { data } = await api.get<UserData>(APIRoute.Login);
+      saveToken(data.token);
+      dispatch(setAuthorizationStatus(AuthorizationStatus.Auth));
+      dispatch(setUserData(data));
     } catch {
-      dispatch(requireAuthorization(AuthorizationStatus.NoAuth));
+      dispatch(setAuthorizationStatus(AuthorizationStatus.NoAuth));
+      dispatch(clearUserData());
     }
   },
 );
@@ -80,7 +83,7 @@ export const loginAction = createAsyncThunk<
       const { data } = await api.post<UserData>(APIRoute.Login, { email, password });
       saveToken(data.token);
       dispatch(setAuthorizationStatus(AuthorizationStatus.Auth));
-      dispatch(setUserEmail(data.email));
+      dispatch(setUserData(data));
       dispatch(redirectToRoute(AppRoute.Main));
       return data;
     } catch (error) {
@@ -95,16 +98,15 @@ export const logoutAction = createAsyncThunk<
   undefined,
   {
     dispatch: AppDispatch;
-    state: OffersState;
+    state: RootState;
     extra: AxiosInstance;
   }
 >(
   'user/logout',
-  async (_arg, {dispatch, extra: api}) => {
+  async (_arg, { dispatch, extra: api }) => {
     await api.delete(APIRoute.Logout);
-
     removeToken();
-
-    dispatch(requireAuthorization(AuthorizationStatus.NoAuth));
+    dispatch(setAuthorizationStatus(AuthorizationStatus.NoAuth));
+    dispatch(clearUserData());
   }
 );

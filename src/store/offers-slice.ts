@@ -116,10 +116,6 @@ export const fetchNearbyOffers = createAsyncThunk<CardProps[], string>(
   }
 );
 
-export const setAuthorizationStatus = createAction<AuthorizationStatus>(
-  'user/setAuthorizationStatus'
-);
-
 const offersSlice = createSlice({
   name: 'offers',
   initialState,
@@ -168,9 +164,6 @@ const offersSlice = createSlice({
       .addCase(fetchOfferById.rejected, (state, action) => {
         state.isCurrentOfferLoading = false;
         state.error = action.payload as string;
-      })
-      .addCase(setAuthorizationStatus, (state, action) => {
-        state.authorizationStatus = action.payload;
       })
       .addCase(loginAction.fulfilled, (state, action) => {
         state.authorizationStatus = AuthorizationStatus.Auth;
