@@ -1,7 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AppRoute } from '../utils/routes.ts';
 import { MainPage } from '../../pages/main-page/main-page.tsx';
-import { FavoritesEmpty } from '../favorites-empty/favorites-empty.tsx';
 import { Login } from '../../pages/login/login.tsx';
 import { NotFound } from '../../pages/not-found/not-found.tsx';
 import { Offer } from '../../pages/offer/offer.tsx';
@@ -38,15 +37,6 @@ function App(): JSX.Element {
           element={
             <PrivateRoute>
               <Favorites />
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path={AppRoute.FavoritesEmpty}
-          element={
-            <PrivateRoute>
-              <FavoritesEmpty />
             </PrivateRoute>
           }
         />
