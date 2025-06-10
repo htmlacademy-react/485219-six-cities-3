@@ -5,8 +5,19 @@ type ReviewsListProps = {
 };
 
 function ReviewsList({ comments }: ReviewsListProps): JSX.Element {
+  if (comments.length === 0) {
+    return (
+      <div className="reviews__container">
+        <h2 className="reviews__title">
+          Reviews · <span className="reviews__amount">0</span>
+        </h2>
+        <p className="reviews__empty">No reviews yet. Be the first to review!</p>
+      </div>
+    );
+  }
+
   return (
-    <>
+    <div className="reviews__container">
       <h2 className="reviews__title">
         Reviews · <span className="reviews__amount">{comments.length}</span>
       </h2>
@@ -53,7 +64,7 @@ function ReviewsList({ comments }: ReviewsListProps): JSX.Element {
           );
         })}
       </ul>
-    </>
+    </div>
   );
 }
 
