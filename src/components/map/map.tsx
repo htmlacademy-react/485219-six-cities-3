@@ -1,7 +1,7 @@
 import leaflet, {LayerGroup} from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {URL_MARKER_ACTIVE, URL_MARKER_DEFAULT} from './assets/map-const.ts';
-import {useEffect, useRef} from 'react';
+import {useEffect, useRef, useMemo, memo} from 'react';
 import {useMap} from '../utils/hooks/use-map.ts';
 import {CardProps} from '../offer-card/offer-card-data.ts';
 
@@ -10,24 +10,25 @@ type MapProps = {
   selectedCity: CardProps;
   cardsData: CardProps[];
   activeOfferId?: string | null;
-}
+};
 
-const defaultMarkerIcon = leaflet.icon({
-  iconUrl: URL_MARKER_DEFAULT,
-  iconSize: [40, 40],
-  iconAnchor: [20, 40],
-});
-
-const activeMarkerIcon = leaflet.icon({
-  iconUrl: URL_MARKER_ACTIVE,
-  iconSize: [40, 40],
-  iconAnchor: [20, 40],
-});
-
-function Map ({selectedCity, cardsData, activeOfferId, className} : MapProps): JSX.Element {
+const Map = memo(({selectedCity, cardsData, activeOfferId, className}: MapProps): JSX.Element => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const map = useMap({ location: selectedCity.city.location, containerRef: mapContainerRef });
+  const map = useMap({location: selectedCity.city.location, containerRef: mapContainerRef});
   const markerLayer = useRef<LayerGroup>(leaflet.layerGroup());
+
+  const icons = useMemo(() => ({
+    default: leaflet.icon({
+      iconUrl: URL_MARKER_DEFAULT,
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+    }),
+    active: leaflet.icon({
+      iconUrl: URL_MARKER_ACTIVE,
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+    })
+  }), []);
 
   useEffect(() => {
     if (map) {
@@ -38,19 +39,21 @@ function Map ({selectedCity, cardsData, activeOfferId, className} : MapProps): J
   }, [selectedCity, map]);
 
   useEffect(() => {
-    if (map) {
-      cardsData.forEach((card) => {
-        leaflet.marker({
-          lat: card.location.latitude,
-          lng: card.location.longitude,
-        }, {
-          icon: card.id === activeOfferId ? activeMarkerIcon : defaultMarkerIcon,
-        }).addTo(markerLayer.current);
-      });
+    if (map && cardsData.length > 0) {
+      const newMarkers = cardsData.map((card) =>
+        leaflet.marker([card.location.latitude, card.location.longitude], {
+          icon: card.id === activeOfferId ? icons.active : icons.default
+        })
+      );
+
+      markerLayer.current.clearLayers();
+      newMarkers.forEach((marker) => marker.addTo(markerLayer.current));
     }
-  }, [activeOfferId, map, cardsData]);
+  }, [activeOfferId, map, cardsData, icons]);
 
   return <section className={`${className} map`} ref={mapContainerRef}/>;
-}
+});
 
-export { Map };
+Map.displayName = 'Map';
+
+export {Map};

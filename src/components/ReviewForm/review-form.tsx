@@ -1,8 +1,10 @@
-import {Fragment, useState, FormEvent} from 'react';
+import {Fragment, useState, FormEvent, ChangeEvent} from 'react';
 import {useAppDispatch, useAppSelector} from '../../store';
 import {postComment} from '../../store/api-actions';
 
-const rating = [
+const MAX_LENGTH = 50;
+
+const RATING = [
   {value: 5, label: 'perfect'},
   {value: 4, label: 'good'},
   {value: 3, label: 'not bad'},
@@ -22,6 +24,14 @@ function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
     rating: 0,
   });
 
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const {name, value} = e.target;
+    setFormData({
+      ...formData,
+      [name]: name === 'rating' ? Number(value) : value
+    });
+  };
+
   const handleSubmit = (evt: FormEvent) => {
     evt.preventDefault();
     if (formData.comment && formData.rating) {
@@ -33,13 +43,19 @@ function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
     }
   };
 
+  const isFormDisabled = isSending || formData.comment.length < MAX_LENGTH || formData.rating === 0;
+
   return (
-    <form className="reviews__form form" onSubmit={handleSubmit}>
+    <form
+      className="reviews__form form"
+      onSubmit={handleSubmit}
+      aria-busy={isSending}
+    >
       <label className="reviews__label form__label" htmlFor="review">
         Your review
       </label>
       <div className="reviews__rating-form form__rating">
-        {rating.map(({value, label}) => (
+        {RATING.map(({value, label}) => (
           <Fragment key={value}>
             <input
               className="form__rating-input visually-hidden"
@@ -48,7 +64,7 @@ function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
               id={`${value}-stars`}
               type="radio"
               checked={formData.rating === value}
-              onChange={() => setFormData({...formData, rating: value})}
+              onChange={handleChange}
               disabled={isSending}
             />
             <label
@@ -66,10 +82,11 @@ function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
       <textarea
         className="reviews__textarea form__textarea"
         id="review"
-        name="review"
+        name="comment"
         placeholder="Tell how was your stay, what you like and what can be improved"
         value={formData.comment}
-        onChange={(e) => setFormData({...formData, comment: e.target.value})} disabled={isSending}
+        onChange={handleChange}
+        disabled={isSending}
       >
       </textarea>
       <div className="reviews__button-wrapper">
@@ -77,16 +94,12 @@ function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
           To submit review please make sure to set{' '}
           <span className="reviews__star">rating</span> and describe your
           stay with at least{' '}
-          <b className="reviews__text-amount">50 characters</b>.
+          <b className="reviews__text-amount">{MAX_LENGTH} characters</b>.
         </p>
         <button
           className="reviews__submit form__submit button"
           type="submit"
-          disabled={
-            isSending ||
-            formData.comment.length < 50 ||
-            formData.rating === 0
-          }
+          disabled={isFormDisabled}
         >
           {isSending ? 'Sending...' : 'Submit'}
         </button>
@@ -95,4 +108,4 @@ function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
   );
 }
 
-export {ReviewForm};
+export { ReviewForm };

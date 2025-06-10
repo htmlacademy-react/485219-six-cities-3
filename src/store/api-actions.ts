@@ -1,12 +1,11 @@
 import { AxiosInstance } from 'axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { AppDispatch, RootState } from './types/store-types.ts';
-import { CardProps } from '../components/offer-card/offer-card-data.ts';
 import {
-  loadOffers,
   setError,
   setOffersDataLoadingStatus,
-  redirectToRoute
+  redirectToRoute,
+  loadOffers
 } from './actions';
 import { saveToken, removeToken } from '../services/token';
 import { APIRoute, AppRoute } from '../components/utils/routes.ts';
@@ -21,6 +20,7 @@ import {
   clearUserData
 } from './user-slice';
 import { Review, CommentFormData } from '../types/comment.ts';
+import { CardProps } from '../components/offer-card/offer-card-data.ts';
 
 export const clearErrorAction = createAsyncThunk(
   'app/clearError',
@@ -44,8 +44,11 @@ export const fetchOffersAction = createAsyncThunk<
   'data/fetchOffers',
   async (_arg, { dispatch, extra: api }) => {
     dispatch(setOffersDataLoadingStatus(true));
+
     const { data } = await api.get<CardProps[]>(APIRoute.Offers);
+
     dispatch(setOffersDataLoadingStatus(false));
+
     dispatch(loadOffers(data));
   }
 );
@@ -109,7 +112,7 @@ export const logoutAction = createAsyncThunk<
     removeToken();
     dispatch(setAuthorizationStatus(AuthorizationStatus.NoAuth));
     dispatch(clearUserData());
-    dispatch(redirectToRoute(AppRoute.Main)); // Добавляем перенаправление на главную
+    dispatch(redirectToRoute(AppRoute.Main));
   }
 );
 
@@ -123,17 +126,12 @@ export const postComment = createAsyncThunk<
   }
 >(
   'comments/postComment',
-  async ({ offerId, commentData }, { dispatch, extra: api }) => {
-    try {
-      const { data } = await api.post<Review>( // Заменили Comment на Review
-        `${APIRoute.Comments}/${offerId}`,
-        commentData
-      );
-      return data;
-    } catch (error) {
-      dispatch(setError('Failed to post comment'));
-      throw error;
-    }
+  async ({ offerId, commentData }, { extra: api }) => {
+    const { data } = await api.post<Review>(
+      `${APIRoute.Comments}/${offerId}`,
+      commentData
+    );
+    return data;
   }
 );
 
@@ -147,15 +145,10 @@ export const fetchComments = createAsyncThunk<
   }
 >(
   'comments/fetchComments',
-  async (offerId, { dispatch, extra: api }) => {
-    try {
-      const { data } = await api.get<Review[]>( // Заменили Comment[] на Review[]
-        `${APIRoute.Comments}/${offerId}`
-      );
-      return data;
-    } catch (error) {
-      dispatch(setError('Failed to load comments'));
-      throw error;
-    }
+  async (offerId, { extra: api }) => {
+    const { data } = await api.get<Review[]>(
+      `${APIRoute.Comments}/${offerId}`
+    );
+    return data;
   }
 );

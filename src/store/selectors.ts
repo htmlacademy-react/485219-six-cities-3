@@ -1,4 +1,9 @@
+import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from './index';
 
-export const getFavoriteOffers = (state: RootState) =>
-  state.offers.offers.filter((offer) => offer.isFavorite);
+const selectAllOffers = (state: RootState) => state.offers.offers;
+
+export const getFavoriteOffers = createSelector(
+  [selectAllOffers],
+  (offers) => offers.filter((offer) => offer.isFavorite)
+);
