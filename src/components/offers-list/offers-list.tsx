@@ -1,8 +1,8 @@
-import { CardProps } from '../offer-card/offer-card-data.ts';
-import { OfferCard } from '../offer-card/offer-card.tsx';
-import { useState } from 'react';
-import { Map } from '../map/map.tsx';
-import { useAppSelector } from '../../store';
+import {CardProps} from '../offer-card/offer-card-data.ts';
+import {OfferCard} from '../offer-card/offer-card.tsx';
+import {memo, useCallback, useMemo, useState} from 'react';
+import {Map} from '../map/map.tsx';
+import {useAppSelector} from '../../store';
 
 type SortOption = {
   value: string;
@@ -30,66 +30,61 @@ const initialSortOptions: SortOptions = [
   }
 ];
 
-function SortOption({ option, onClick }: { option: SortOption; onClick: () => void }) {
-  const { value, isActive } = option;
-
-  return (
-    <li
-      className={`places__option ${isActive ? 'places__option--active' : ''}`}
-      tabIndex={0}
-      onClick={onClick}
-    >
-      {value}
-    </li>
-  );
-}
+const SortOptionComponent = ({option, onClick}: { option: SortOption; onClick: () => void }) => (
+  <li className={`places__option ${option.isActive ? 'places__option--active' : ''}`} tabIndex={0} onClick={onClick}>
+    {option.value}
+  </li>
+);
+const SortOption = memo(SortOptionComponent);
+SortOption.displayName = 'SortOption';
 
 type OffersListProps = {
   selectedCity: CardProps;
 };
 
-function OffersList({ selectedCity }: OffersListProps): JSX.Element {
+const OffersListComponent = ({selectedCity}: OffersListProps): JSX.Element => {
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [options, setOptions] = useState<SortOptions>(initialSortOptions);
 
   const offers = useAppSelector((state) => state.offers.offers);
-  const currentOffers = offers.filter((offer) => offer.city.name === selectedCity.city.name);
 
-  const handleOptionClick = (clickedValue: string) => {
-    setOptions((prevOptions) =>
-      prevOptions.map((option) => ({
-        ...option,
-        isActive: option.value === clickedValue,
-      }))
-    );
+  const currentOffers = useMemo(() =>
+    offers.filter((offer) => offer.city.name === selectedCity.city.name), [offers, selectedCity]);
+
+  const activeSortType = useMemo(() =>
+    options.find((option) => option.isActive)?.value || 'Popular', [options]);
+
+  const sortedOffers = useMemo(() => {
+    if (!currentOffers.length) {
+      return [];
+    }
+
+    switch (activeSortType) {
+      case 'Price: low to high':
+        return [...currentOffers].sort((a, b) => a.price - b.price);
+      case 'Price: high to low':
+        return [...currentOffers].sort((a, b) => b.price - a.price);
+      case 'Top rated first':
+        return [...currentOffers].sort((a, b) => b.rating - a.rating);
+      default:
+        return currentOffers;
+    }
+  }, [currentOffers, activeSortType]);
+
+  const handleOptionClick = useCallback((clickedValue: string) => {
+    setOptions((prev) => prev.map((opt) => ({...opt, isActive: opt.value === clickedValue})));
     setIsSortOpen(false);
-  };
+  }, []);
 
-  const activeSortType = options.find((option) => option.isActive)?.value || 'Popular';
+  const handleCardHover = useCallback((id: string) => setActiveCardId(id), []);
+  const handleCardLeave = useCallback(() => setActiveCardId(null), []);
 
-  let sortedOffers;
-  switch (activeSortType) {
-    case 'Price: low to high':
-      sortedOffers = [...currentOffers].sort((a, b) => a.price - b.price);
-      break;
-    case 'Price: high to low':
-      sortedOffers = [...currentOffers].sort((a, b) => b.price - a.price);
-      break;
-    case 'Top rated first':
-      sortedOffers = [...currentOffers].sort((a, b) => b.rating - a.rating);
-      break;
-    default:
-      sortedOffers = currentOffers;
-  }
-
-  const handleCardHover = (id: string) => {
-    setActiveCardId(id);
-  };
-
-  const handleCardLeave = () => {
-    setActiveCardId(null);
-  };
+  const sortOptionHandlers = useMemo(() =>
+    options.reduce((acc, option) => {
+      acc[option.value] = () => handleOptionClick(option.value);
+      return acc;
+    }, {} as Record<string, () => void>), [options, handleOptionClick]);
 
   return (
     <div className="cities__places-container container">
@@ -108,7 +103,7 @@ function OffersList({ selectedCity }: OffersListProps): JSX.Element {
                 tabIndex={0}
                 onClick={() => setIsSortOpen((state) => !state)}
               >
-                {options.find((item) => item.isActive)?.value || 'Popular'}
+                {activeSortType}
                 <svg className="places__sorting-arrow" width={7} height={4}>
                   <use xlinkHref="#icon-arrow-select"></use>
                 </svg>
@@ -118,7 +113,7 @@ function OffersList({ selectedCity }: OffersListProps): JSX.Element {
                   <SortOption
                     key={option.value}
                     option={option}
-                    onClick={() => handleOptionClick(option.value)}
+                    onClick={sortOptionHandlers[option.value]}
                   />
                 ))}
               </ul>
@@ -153,6 +148,9 @@ function OffersList({ selectedCity }: OffersListProps): JSX.Element {
       )}
     </div>
   );
-}
+};
 
-export { OffersList };
+const OffersList = memo(OffersListComponent);
+OffersList.displayName = 'OffersList';
+
+export {OffersList};
