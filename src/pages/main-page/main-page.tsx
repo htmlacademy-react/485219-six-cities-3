@@ -1,19 +1,21 @@
 import {OffersList} from '../../components/offers-list/offers-list.tsx';
 import {CityTabs} from '../../components/city-tabs/city-tabs.tsx';
-import {CITIES} from '../../components/utils/const.ts';
-import {City} from '../../components/utils/const.ts';
+import {CITIES, City} from '../../components/utils/const.ts';
 import {useAppDispatch, useAppSelector} from '../../store';
 import {fetchOffers} from '../../store/offers-slice.ts';
 import {useEffect} from 'react';
 import {Spinner} from '../../components/spinner/spinner.tsx';
 import {Header} from '../../components/header/header.tsx';
+import {MainEmpty} from '../../components/main-empty/main-empty.tsx';
 
 function MainPage(): JSX.Element {
   const dispatch = useAppDispatch();
   const selectedCity = useAppSelector((state) => state.offers.city);
   const offers = useAppSelector((state) => state.offers.offers);
   const isLoading = useAppSelector((state) => state.offers.isOffersDataLoading);
-  const selectedCityObj = offers.find((card) => card.city.name === selectedCity);
+
+  const cityOffers = offers.filter((offer) => offer.city.name === selectedCity);
+  const hasOffers = cityOffers.length > 0;
 
   useEffect(() => {
     dispatch(fetchOffers());
@@ -21,10 +23,6 @@ function MainPage(): JSX.Element {
 
   if (isLoading) {
     return <Spinner />;
-  }
-
-  if (!selectedCityObj) {
-    return <div>No offers available for {selectedCity}</div>;
   }
 
   return (
@@ -38,8 +36,13 @@ function MainPage(): JSX.Element {
             <CityTabs cities={CITIES} selectedCity={selectedCity as City} />
           </section>
         </div>
+
         <div className="cities">
-          <OffersList selectedCity={selectedCityObj} />
+          {hasOffers ? (
+            <OffersList selectedCity={cityOffers[0]} />
+          ) : (
+            <MainEmpty selectedCity={selectedCity as City} />
+          )}
         </div>
       </main>
     </div>

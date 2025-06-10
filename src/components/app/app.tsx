@@ -1,9 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AppRoute } from '../utils/routes.ts';
 import { MainPage } from '../../pages/main-page/main-page.tsx';
-import { FavoritesEmpty } from '../../pages/favorites-empty/favorites-empty.tsx';
+import { FavoritesEmpty } from '../favorites-empty/favorites-empty.tsx';
 import { Login } from '../../pages/login/login.tsx';
-import { MainEmpty } from '../../pages/main-empty/main-empty.tsx';
 import { NotFound } from '../../pages/not-found/not-found.tsx';
 import { Offer } from '../../pages/offer/offer.tsx';
 import { PrivateRoute } from '../private-route/private-route.tsx';
@@ -32,7 +31,6 @@ function App(): JSX.Element {
           path={AppRoute.Offer}
           element={<Offer />}
         />
-        <Route path={AppRoute.MainEmpty} element={<MainEmpty />} />
         <Route path={AppRoute.NotFound} element={<NotFound />} />
 
         <Route
