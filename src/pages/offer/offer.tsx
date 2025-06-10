@@ -1,31 +1,34 @@
-import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { convertStarsToPercent } from '../../components/utils/card-utils.ts';
-import { Reviews } from '../../components/Review/review.tsx';
-import { AuthorizationStatus } from '../../components/utils/auth-statuses.ts';
-import { Map } from '../../components/map/map.tsx';
-import { OfferCard } from '../../components/offer-card/offer-card.tsx';
-import { useAppDispatch, useAppSelector } from '../../store';
-import { fetchOfferById, fetchNearbyOffers, clearCurrentOffer } from '../../store/offers-slice';
+import {useEffect, useState, useMemo} from 'react';
+import {useParams, Navigate} from 'react-router-dom';
+import {AppRoute} from '../../components/utils/routes.ts';
+import {convertStarsToPercent} from '../../components/utils/card-utils.ts';
+import {Reviews} from '../../components/Review/reviews.tsx';
+import {AuthorizationStatus} from '../../components/utils/auth-statuses.ts';
+import {Map} from '../../components/map/map.tsx';
+import {OfferCard} from '../../components/offer-card/offer-card.tsx';
+import {useAppDispatch, useAppSelector} from '../../store';
+import {fetchOfferById, fetchNearbyOffers, clearCurrentOffer} from '../../store/offers-slice';
 import {Header} from '../../components/header/header.tsx';
+import {fetchComments} from '../../store/api-actions.ts';
 
-type OfferProps = {
-  authorizationStatus: AuthorizationStatus;
-};
 
-function Offer({ authorizationStatus }: OfferProps): JSX.Element {
-  const { id } = useParams<{ id: string }>();
+function Offer(): JSX.Element {
+  const {id} = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
-  const { currentOffer, offers, isCurrentOfferLoading } = useAppSelector((state) => ({
-    currentOffer: state.offers.currentOffer,
-    offers: state.offers.offers,
-    isCurrentOfferLoading: state.offers.isCurrentOfferLoading
-  }));
+
+  const authorizationStatus = useAppSelector((state) => state.user.authorizationStatus);
+  const currentOffer = useAppSelector((state) => state.offers.currentOffer);
+  const offers = useAppSelector((state) => state.offers.offers);
+  const isCurrentOfferLoading = useAppSelector((state) => state.offers.isCurrentOfferLoading);
+  const currentOfferError = useAppSelector((state) => state.offers.currentOfferError);
+
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
   useEffect(() => {
     if (id) {
       dispatch(fetchOfferById(id));
       dispatch(fetchNearbyOffers(id));
+      dispatch(fetchComments(id));
     }
 
     return () => {
@@ -33,32 +36,49 @@ function Offer({ authorizationStatus }: OfferProps): JSX.Element {
     };
   }, [dispatch, id]);
 
-  if (isCurrentOfferLoading) {
+  useEffect(() => {
+    if (!isCurrentOfferLoading && !currentOffer && !currentOfferError) {
+      const timer = setTimeout(() => setShouldRedirect(true), 100);
+      return () => clearTimeout(timer);
+    }
+    setShouldRedirect(false);
+  }, [isCurrentOfferLoading, currentOffer, currentOfferError]);
+
+  const {nearOffersCards, nearOffersWithCurrent} = useMemo(() => {
+    if (!currentOffer) {
+      return {nearOffersCards: [], nearOffersWithCurrent: []};
+    }
+
+    const filtered = offers.filter((offer) =>
+      offer.city.name === currentOffer.city.name &&
+      offer.id !== currentOffer.id
+    ).slice(0, 3);
+
+    return {
+      nearOffersCards: filtered,
+      nearOffersWithCurrent: [currentOffer, ...filtered]
+    };
+  }, [currentOffer, offers]);
+
+  if (shouldRedirect || currentOfferError) {
+    return <Navigate to={AppRoute.NotFound}/>;
+  }
+
+  if (isCurrentOfferLoading || !currentOffer) {
     return <div>Loading...</div>;
   }
 
-  if (!currentOffer) {
-    return <p>Offer not found</p>;
-  }
-
-  const nearOffersCards = offers.filter((offer) =>
-    offer.city.name === currentOffer.city.name &&
-    offer.id !== currentOffer.id
-  ).slice(0, 3);
-
-  const nearOffersWithCurrent = [currentOffer, ...nearOffersCards];
-
   return (
     <div className="page">
-      <Header />
+      <Header/>
 
       <main className="page__main page__main--offer">
         <section className="offer">
           <div className="offer__gallery-container container">
             <div className="offer__gallery">
-              {currentOffer.images.map((image, index) => (
-                <div key={currentOffer.id} className="offer__image-wrapper">
-                  <img className="offer__image" src={image} alt={`Photo ${index + 1}`} />
+              {currentOffer.images.map((image) => (
+                <div key={image} className="offer__image-wrapper">
+                  <img className="offer__image" src={image} alt={'Photo studio'} />
                 </div>
               ))}
             </div>
@@ -134,7 +154,9 @@ function Offer({ authorizationStatus }: OfferProps): JSX.Element {
                 </div>
               </div>
               <section className="offer__reviews reviews">
-                <Reviews isAuth={authorizationStatus === AuthorizationStatus.Auth}/>
+                {authorizationStatus === AuthorizationStatus.Auth && (
+                  <Reviews offerId={id || ''} />
+                )}
               </section>
             </div>
           </div>
@@ -164,4 +186,4 @@ function Offer({ authorizationStatus }: OfferProps): JSX.Element {
   );
 }
 
-export { Offer };
+export {Offer};

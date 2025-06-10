@@ -67,6 +67,7 @@ type OffersState = {
   isCurrentOfferLoading: boolean;
   error: string | null;
   email: string | null;
+  currentOfferError: string | null;
 };
 
 const initialState: OffersState = {
@@ -78,6 +79,7 @@ const initialState: OffersState = {
   isCurrentOfferLoading: false,
   error: null,
   email: null,
+  currentOfferError: null,
 };
 
 export const fetchOffers = createAsyncThunk<CardProps[], void>(
@@ -114,10 +116,6 @@ export const fetchNearbyOffers = createAsyncThunk<CardProps[], string>(
       return rejectWithValue('Failed to load nearby offers');
     }
   }
-);
-
-export const setAuthorizationStatus = createAction<AuthorizationStatus>(
-  'user/setAuthorizationStatus'
 );
 
 const offersSlice = createSlice({
@@ -167,10 +165,7 @@ const offersSlice = createSlice({
       })
       .addCase(fetchOfferById.rejected, (state, action) => {
         state.isCurrentOfferLoading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(setAuthorizationStatus, (state, action) => {
-        state.authorizationStatus = action.payload;
+        state.currentOfferError = action.payload as string;
       })
       .addCase(loginAction.fulfilled, (state, action) => {
         state.authorizationStatus = AuthorizationStatus.Auth;

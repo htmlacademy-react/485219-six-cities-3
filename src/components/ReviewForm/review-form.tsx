@@ -1,6 +1,6 @@
-import {Fragment, ReactEventHandler, useState} from 'react';
-
-type ChangeHandler = ReactEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+import {Fragment, useState, FormEvent} from 'react';
+import {useAppDispatch, useAppSelector} from '../../store';
+import {postComment} from '../../store/api-actions';
 
 const rating = [
   {value: 5, label: 'perfect'},
@@ -10,17 +10,34 @@ const rating = [
   {value: 1, label: 'terrible'},
 ];
 
-function ReviewForm(): JSX.Element {
-  const [review, setReview] = useState({rating: 0, review: ''});
+type ReviewFormProps = {
+  offerId: string;
+};
 
-  const handleChange: ChangeHandler = (event) => {
-    const {name, value} = event.currentTarget;
-    setReview({...review, [name]: value});
+function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
+  const dispatch = useAppDispatch();
+  const {isSending} = useAppSelector((state) => state.comments);
+  const [formData, setFormData] = useState({
+    comment: '',
+    rating: 0,
+  });
+
+  const handleSubmit = (evt: FormEvent) => {
+    evt.preventDefault();
+    if (formData.comment && formData.rating) {
+      dispatch(postComment({offerId, commentData: formData}))
+        .unwrap()
+        .then(() => {
+          setFormData({comment: '', rating: 0});
+        });
+    }
   };
 
   return (
-    <form className="reviews__form form" action="#" method="post">
-      <label className="reviews__label form__label" htmlFor="review">Your review</label>
+    <form className="reviews__form form" onSubmit={handleSubmit}>
+      <label className="reviews__label form__label" htmlFor="review">
+        Your review
+      </label>
       <div className="reviews__rating-form form__rating">
         {rating.map(({value, label}) => (
           <Fragment key={value}>
@@ -30,7 +47,9 @@ function ReviewForm(): JSX.Element {
               value={value}
               id={`${value}-stars`}
               type="radio"
-              onChange={handleChange}
+              checked={formData.rating === value}
+              onChange={() => setFormData({...formData, rating: value})}
+              disabled={isSending}
             />
             <label
               htmlFor={`${value}-stars`}
@@ -49,20 +68,27 @@ function ReviewForm(): JSX.Element {
         id="review"
         name="review"
         placeholder="Tell how was your stay, what you like and what can be improved"
-        onChange={handleChange}
+        value={formData.comment}
+        onChange={(e) => setFormData({...formData, comment: e.target.value})} disabled={isSending}
       >
       </textarea>
       <div className="reviews__button-wrapper">
         <p className="reviews__help">
-          To submit review please make sure to set <span className="reviews__star">rating</span> and
-          describe your stay with at least <b className="reviews__text-amount">50 characters</b>.
+          To submit review please make sure to set{' '}
+          <span className="reviews__star">rating</span> and describe your
+          stay with at least{' '}
+          <b className="reviews__text-amount">50 characters</b>.
         </p>
         <button
           className="reviews__submit form__submit button"
           type="submit"
-          disabled={review.review.length <= 50 || review.rating === 0}
+          disabled={
+            isSending ||
+            formData.comment.length < 50 ||
+            formData.rating === 0
+          }
         >
-          Submit
+          {isSending ? 'Sending...' : 'Submit'}
         </button>
       </div>
     </form>
