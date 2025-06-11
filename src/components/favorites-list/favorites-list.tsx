@@ -1,7 +1,7 @@
-import {useSelector} from 'react-redux';
 import {FavoritesCard} from '../favorites-card/favorires-card.tsx';
 import {getFavoriteOffers} from '../../store/selectors.ts';
 import {CardProps} from '../offer-card/offer-card-data.ts';
+import {useAppSelector} from '../../store';
 
 function groupByCity(cards: CardProps[]): Record<string, CardProps[]> {
   return cards.reduce<Record<string, CardProps[]>>((acc, card) => {
@@ -17,17 +17,9 @@ function groupByCity(cards: CardProps[]): Record<string, CardProps[]> {
 }
 
 function FavoritesList(): JSX.Element {
-  const favoriteOffers = useSelector(getFavoriteOffers);
+  const favoriteOffers = useAppSelector(getFavoriteOffers);
   const groupedByCity = groupByCity(favoriteOffers);
   const cities = Object.keys(groupedByCity);
-
-  if (cities.length === 0) {
-    return (
-      <div className="favorites__status">
-        <p>No favorites yet</p>
-      </div>
-    );
-  }
 
   return (
     <ul className="favorites__list">
