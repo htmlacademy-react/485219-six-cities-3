@@ -20,13 +20,13 @@ const Map = memo(({selectedCity, cardsData, activeOfferId, className}: MapProps)
   const icons = useMemo(() => ({
     default: leaflet.icon({
       iconUrl: URL_MARKER_DEFAULT,
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
+      iconSize: [27, 39],
+      iconAnchor: [14, 39],
     }),
     active: leaflet.icon({
       iconUrl: URL_MARKER_ACTIVE,
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
+      iconSize: [27, 39],
+      iconAnchor: [14, 39],
     })
   }), []);
 
