@@ -39,11 +39,23 @@ function Offer(): JSX.Element {
   }, [dispatch, id]);
 
   useEffect(() => {
+    let isMounted = true;
+    let timer: NodeJS.Timeout;
+
     if (!isCurrentOfferLoading && !currentOffer && !currentOfferError) {
-      const timer = setTimeout(() => setShouldRedirect(true), 100);
-      return () => clearTimeout(timer);
+      timer = setTimeout(() => {
+        if (isMounted) {
+          setShouldRedirect(true);
+        }
+      }, 100);
+    } else {
+      setShouldRedirect(false);
     }
-    setShouldRedirect(false);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
   }, [isCurrentOfferLoading, currentOffer, currentOfferError]);
 
   const {nearOffersCards, nearOffersWithCurrent} = useMemo(() => {
