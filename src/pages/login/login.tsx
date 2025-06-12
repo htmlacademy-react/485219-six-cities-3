@@ -1,10 +1,13 @@
 import { FormEvent, useState } from 'react';
-import { useAppDispatch } from '../../store';
+import {useAppDispatch, useAppSelector} from '../../store';
 import { loginAction } from '../../store/api-actions';
 import { Header } from '../../components/header/header.tsx';
 import { AppRoute} from '../../components/utils/routes.ts';
 import { useNavigate } from 'react-router-dom';
 import {AuthData} from '../../types/auth-data.ts';
+import { useEffect } from 'react';
+import {AuthorizationStatus} from '../../components/utils/auth-statuses.ts';
+import {getAuthorizationStatus} from '../../store/selectors.ts';
 
 function Login(): JSX.Element {
   const dispatch = useAppDispatch();
@@ -12,6 +15,13 @@ function Login(): JSX.Element {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const authorizationStatus = useAppSelector(getAuthorizationStatus);
+
+  useEffect(() => {
+    if (authorizationStatus === AuthorizationStatus.Auth) {
+      navigate(AppRoute.Main);
+    }
+  }, [authorizationStatus, navigate]);
 
   const handleSubmit = (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
