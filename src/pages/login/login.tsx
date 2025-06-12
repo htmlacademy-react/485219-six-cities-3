@@ -23,7 +23,7 @@ function Login(): JSX.Element {
     }
   }, [authorizationStatus, navigate]);
 
-  const handleSubmit = (evt: FormEvent<HTMLFormElement>) => {
+  const handleLoginFormSubmit = (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
 
     const isPasswordValid = /[A-Za-z]/.test(password) && /\d/.test(password);
@@ -54,7 +54,7 @@ function Login(): JSX.Element {
         <div className="page__login-container container">
           <section className="login">
             <h1 className="login__title">Sign in</h1>
-            <form className="login__form form" onSubmit={handleSubmit}>
+            <form className="login__form form" onSubmit={handleLoginFormSubmit }>
               <div className="login__input-wrapper form__input-wrapper">
                 <label className="visually-hidden">E-mail</label>
                 <input
