@@ -11,6 +11,8 @@ import {fetchOfferById, fetchNearbyOffers, clearCurrentOffer} from '../../store/
 import {Header} from '../../components/header/header.tsx';
 import {fetchComments} from '../../store/api-actions.ts';
 
+const START_INDEX = 0;
+const MAX_NEARBY_OFFERS = 3;
 
 function Offer(): JSX.Element {
   const {id} = useParams<{ id: string }>();
@@ -52,7 +54,7 @@ function Offer(): JSX.Element {
     const filtered = offers.filter((offer) =>
       offer.city.name === currentOffer.city.name &&
       offer.id !== currentOffer.id
-    ).slice(0, 3);
+    ).slice(START_INDEX, MAX_NEARBY_OFFERS);
 
     return {
       nearOffersCards: filtered,

@@ -5,6 +5,8 @@ import {api} from '../services/api';
 import type {CardProps} from '../components/offer-card/offer-card-data.ts';
 import {loginAction, toggleFavoriteAction} from './api-actions.ts';
 
+const START_CITY = 3;
+
 type ServerOffer = {
   id: string;
   title: string;
@@ -72,7 +74,7 @@ type OffersState = {
 };
 
 const initialState: OffersState = {
-  city: CITIES[3],
+  city: CITIES[START_CITY],
   offers: [],
   nearbyOffers: [],
   currentOffer: null,

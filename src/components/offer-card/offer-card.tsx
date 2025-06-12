@@ -6,6 +6,9 @@ import {useAppDispatch, useAppSelector} from '../../store';
 import {AuthorizationStatus} from '../utils/auth-statuses.ts';
 import {toggleFavoriteAction} from '../../store/api-actions';
 
+const YES = 1;
+const NO = 0;
+
 type OfferCardProps = {
   card: CardProps;
   block: string;
@@ -30,7 +33,7 @@ function OfferCard({card, block, onMouseEnter, onMouseLeave}: OfferCardProps): J
 
     dispatch(toggleFavoriteAction({
       offerId: id,
-      status: isFavorite ? 0 : 1
+      status: isFavorite ? NO : YES
     }));
   };
 

@@ -1,6 +1,9 @@
 import {Review as Comment} from '../../types/comment';
 import {memo, useCallback, useMemo} from 'react';
 
+const START_INDEX = 0;
+const MAX_COMMENTS = 10;
+
 type ReviewsListProps = {
   comments: Comment[];
 };
@@ -16,7 +19,7 @@ const ReviewsList = memo(({comments}: ReviewsListProps): JSX.Element => {
 
   const sortedAndLimitedComments = useMemo(() => [...comments]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 10), [comments]);
+    .slice(START_INDEX, MAX_COMMENTS), [comments]);
 
   if (comments.length === 0) {
     return (
