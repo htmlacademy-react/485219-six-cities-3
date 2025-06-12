@@ -2,7 +2,7 @@ import {useEffect, useState, useMemo} from 'react';
 import {useParams, Navigate} from 'react-router-dom';
 import {AppRoute} from '../../components/utils/routes.ts';
 import {convertStarsToPercent} from '../../components/utils/card-utils.ts';
-import {Reviews} from '../../components/Review/reviews.tsx';
+import {Reviews} from '../../components/reviews/reviews.tsx';
 import {AuthorizationStatus} from '../../components/utils/auth-statuses.ts';
 import {Map} from '../../components/map/map.tsx';
 import {OfferCard} from '../../components/offer-card/offer-card.tsx';
@@ -11,6 +11,8 @@ import {fetchOfferById, fetchNearbyOffers, clearCurrentOffer} from '../../store/
 import {Header} from '../../components/header/header.tsx';
 import {fetchComments} from '../../store/api-actions.ts';
 
+const START_INDEX = 0;
+const MAX_NEARBY_OFFERS = 3;
 
 function Offer(): JSX.Element {
   const {id} = useParams<{ id: string }>();
@@ -37,11 +39,23 @@ function Offer(): JSX.Element {
   }, [dispatch, id]);
 
   useEffect(() => {
+    let isMounted = true;
+    let timer: NodeJS.Timeout;
+
     if (!isCurrentOfferLoading && !currentOffer && !currentOfferError) {
-      const timer = setTimeout(() => setShouldRedirect(true), 100);
-      return () => clearTimeout(timer);
+      timer = setTimeout(() => {
+        if (isMounted) {
+          setShouldRedirect(true);
+        }
+      }, 100);
+    } else {
+      setShouldRedirect(false);
     }
-    setShouldRedirect(false);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
   }, [isCurrentOfferLoading, currentOffer, currentOfferError]);
 
   const {nearOffersCards, nearOffersWithCurrent} = useMemo(() => {
@@ -52,7 +66,7 @@ function Offer(): JSX.Element {
     const filtered = offers.filter((offer) =>
       offer.city.name === currentOffer.city.name &&
       offer.id !== currentOffer.id
-    ).slice(0, 3);
+    ).slice(START_INDEX, MAX_NEARBY_OFFERS);
 
     return {
       nearOffersCards: filtered,

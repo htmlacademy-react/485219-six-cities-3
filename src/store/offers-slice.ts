@@ -1,9 +1,11 @@
-import { createAction, createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CITIES } from '../components/utils/const.ts';
-import { AuthorizationStatus } from '../components/utils/auth-statuses.ts';
-import { api } from '../services/api';
-import type { CardProps } from '../components/offer-card/offer-card-data.ts';
-import {loginAction} from './api-actions.ts';
+import {createAction, createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {CITIES} from '../components/utils/const.ts';
+import {AuthorizationStatus} from '../components/utils/auth-statuses.ts';
+import {api} from '../services/api';
+import type {CardProps} from '../components/offer-card/offer-card-data.ts';
+import {loginAction, toggleFavoriteAction} from './api-actions.ts';
+
+const START_CITY = 3;
 
 type ServerOffer = {
   id: string;
@@ -61,6 +63,7 @@ const adaptOfferToClient = (offer: ServerOffer): CardProps => ({
 type OffersState = {
   city: string;
   offers: CardProps[];
+  nearbyOffers: CardProps[];
   currentOffer: CardProps | null;
   authorizationStatus: AuthorizationStatus;
   isOffersDataLoading: boolean;
@@ -71,8 +74,9 @@ type OffersState = {
 };
 
 const initialState: OffersState = {
-  city: CITIES[3],
+  city: CITIES[START_CITY],
   offers: [],
+  nearbyOffers: [],
   currentOffer: null,
   authorizationStatus: AuthorizationStatus.Unknown,
   isOffersDataLoading: false,
@@ -84,9 +88,9 @@ const initialState: OffersState = {
 
 export const fetchOffers = createAsyncThunk<CardProps[], void>(
   'offers/fetchOffers',
-  async (_, { rejectWithValue }) => {
+  async (_, {rejectWithValue}) => {
     try {
-      const { data } = await api.get<ServerOffer[]>('/offers');
+      const {data} = await api.get<ServerOffer[]>('/offers');
       return data.map(adaptOfferToClient);
     } catch (error) {
       return rejectWithValue('Failed to load offers');
@@ -96,9 +100,9 @@ export const fetchOffers = createAsyncThunk<CardProps[], void>(
 
 export const fetchOfferById = createAsyncThunk<CardProps, string>(
   'offers/fetchOfferById',
-  async (offerId, { rejectWithValue }) => {
+  async (offerId, {rejectWithValue}) => {
     try {
-      const { data } = await api.get<ServerOffer>(`/offers/${offerId}`);
+      const {data} = await api.get<ServerOffer>(`/offers/${offerId}`);
       return adaptOfferToClient(data);
     } catch (error) {
       return rejectWithValue('Failed to load offer');
@@ -108,9 +112,9 @@ export const fetchOfferById = createAsyncThunk<CardProps, string>(
 
 export const fetchNearbyOffers = createAsyncThunk<CardProps[], string>(
   'offers/fetchNearbyOffers',
-  async (offerId, { rejectWithValue }) => {
+  async (offerId, {rejectWithValue}) => {
     try {
-      const { data } = await api.get<ServerOffer[]>(`/offers/${offerId}/nearby`);
+      const {data} = await api.get<ServerOffer[]>(`/offers/${offerId}/nearby`);
       return data.map(adaptOfferToClient);
     } catch (error) {
       return rejectWithValue('Failed to load nearby offers');
@@ -174,13 +178,27 @@ const offersSlice = createSlice({
       .addCase(loginAction.rejected, (state) => {
         state.authorizationStatus = AuthorizationStatus.NoAuth;
       })
-      .addCase(fetchNearbyOffers.fulfilled, (state, action) => {
-        action.payload.forEach((offer) => {
-          const index = state.offers.findIndex((o) => o.id === offer.id);
-          if (index !== -1) {
-            state.offers[index] = offer;
+      .addCase(toggleFavoriteAction.fulfilled, (state, action) => {
+        const {id, isFavorite} = action.payload; // Получаем только id и статус
+
+        state.offers.forEach((offer) => {
+          if (offer.id === id) {
+            offer.isFavorite = isFavorite;
           }
         });
+
+        if (state.currentOffer?.id === id) {
+          state.currentOffer.isFavorite = isFavorite;
+        }
+
+        state.nearbyOffers.forEach((offer) => {
+          if (offer.id === id) {
+            offer.isFavorite = isFavorite;
+          }
+        });
+      })
+      .addCase(fetchNearbyOffers.fulfilled, (state, action) => {
+        state.nearbyOffers = action.payload;
       });
   },
 });

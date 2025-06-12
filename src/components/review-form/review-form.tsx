@@ -24,7 +24,7 @@ function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
     rating: 0,
   });
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleReviewFormChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const {name, value} = e.target;
     setFormData({
       ...formData,
@@ -32,7 +32,7 @@ function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
     });
   };
 
-  const handleSubmit = (evt: FormEvent) => {
+  const handleReviewFormSubmit = (evt: FormEvent) => {
     evt.preventDefault();
     if (formData.comment && formData.rating) {
       dispatch(postComment({offerId, commentData: formData}))
@@ -48,7 +48,7 @@ function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
   return (
     <form
       className="reviews__form form"
-      onSubmit={handleSubmit}
+      onSubmit={handleReviewFormSubmit}
       aria-busy={isSending}
     >
       <label className="reviews__label form__label" htmlFor="review">
@@ -64,7 +64,7 @@ function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
               id={`${value}-stars`}
               type="radio"
               checked={formData.rating === value}
-              onChange={handleChange}
+              onChange={handleReviewFormChange}
               disabled={isSending}
             />
             <label
@@ -85,7 +85,7 @@ function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
         name="comment"
         placeholder="Tell how was your stay, what you like and what can be improved"
         value={formData.comment}
-        onChange={handleChange}
+        onChange={handleReviewFormChange}
         disabled={isSending}
       >
       </textarea>

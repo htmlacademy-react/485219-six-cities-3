@@ -1,11 +1,14 @@
-import { Review as Comment } from '../../types/comment';
-import { memo, useCallback } from 'react';
+import {Review as Comment} from '../../types/comment';
+import {memo, useCallback, useMemo} from 'react';
+
+const START_INDEX = 0;
+const MAX_COMMENTS = 10;
 
 type ReviewsListProps = {
   comments: Comment[];
 };
 
-const ReviewsList = memo(({ comments }: ReviewsListProps): JSX.Element => {
+const ReviewsList = memo(({comments}: ReviewsListProps): JSX.Element => {
   const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -13,6 +16,10 @@ const ReviewsList = memo(({ comments }: ReviewsListProps): JSX.Element => {
       year: 'numeric'
     });
   }, []);
+
+  const sortedAndLimitedComments = useMemo(() => [...comments]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(START_INDEX, MAX_COMMENTS), [comments]);
 
   if (comments.length === 0) {
     return (
@@ -31,7 +38,7 @@ const ReviewsList = memo(({ comments }: ReviewsListProps): JSX.Element => {
         Reviews · <span className="reviews__amount">{comments.length}</span>
       </h2>
       <ul className="reviews__list">
-        {comments.map((comment) => (
+        {sortedAndLimitedComments.map((comment) => (
           <li key={comment.id} className="reviews__item">
             <div className="reviews__user user">
               <div className="reviews__avatar-wrapper user__avatar-wrapper">
@@ -51,7 +58,7 @@ const ReviewsList = memo(({ comments }: ReviewsListProps): JSX.Element => {
             <div className="reviews__info">
               <div className="reviews__rating rating">
                 <div className="reviews__stars rating__stars">
-                  <span style={{ width: `${comment.rating * 20}%` }}></span>
+                  <span style={{width: `${comment.rating * 20}%`}}></span>
                   <span className="visually-hidden">Rating</span>
                 </div>
               </div>
@@ -72,4 +79,4 @@ const ReviewsList = memo(({ comments }: ReviewsListProps): JSX.Element => {
 
 ReviewsList.displayName = 'ReviewsList';
 
-export { ReviewsList };
+export {ReviewsList};
