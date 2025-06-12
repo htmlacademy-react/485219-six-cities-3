@@ -5,13 +5,12 @@ import { AuthorizationStatus } from '../utils/auth-statuses.ts';
 
 type PrivateRouteProps = {
   children: JSX.Element;
-  requiredStatus?: AuthorizationStatus;
 }
 
-function PrivateRoute({ children, requiredStatus = AuthorizationStatus.Auth }: PrivateRouteProps): JSX.Element {
-  const authorizationStatus = useAppSelector((state) => state.offers.authorizationStatus);
+function PrivateRoute({ children }: PrivateRouteProps): JSX.Element {
+  const authorizationStatus = useAppSelector((state) => state.user.authorizationStatus);
 
-  return authorizationStatus === requiredStatus
+  return authorizationStatus === AuthorizationStatus.Auth
     ? children
     : <Navigate to={AppRoute.Login} />;
 }
