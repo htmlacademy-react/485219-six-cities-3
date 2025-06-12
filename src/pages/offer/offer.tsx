@@ -2,7 +2,7 @@ import {useEffect, useState, useMemo} from 'react';
 import {useParams, Navigate} from 'react-router-dom';
 import {AppRoute} from '../../components/utils/routes.ts';
 import {convertStarsToPercent} from '../../components/utils/card-utils.ts';
-import {Reviews} from '../../components/Review/reviews.tsx';
+import {Reviews} from '../../components/reviews/reviews.tsx';
 import {AuthorizationStatus} from '../../components/utils/auth-statuses.ts';
 import {Map} from '../../components/map/map.tsx';
 import {OfferCard} from '../../components/offer-card/offer-card.tsx';

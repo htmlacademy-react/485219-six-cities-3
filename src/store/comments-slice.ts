@@ -18,7 +18,7 @@ const commentsSlice = createSlice({
   name: 'comments',
   initialState,
   reducers: {
-    setComments: (state, action: PayloadAction<Review[]>) => { // Заменили Comment на Review
+    setComments: (state, action: PayloadAction<Review[]>) => { // Заменили Comment на reviews
       state.comments = action.payload;
     },
   },

@@ -1,6 +1,6 @@
 import { useAppSelector } from '../../store';
-import { ReviewsList } from '../ReviewsList/reviews-list.tsx';
-import { ReviewForm } from '../ReviewForm/review-form.tsx';
+import { ReviewsList } from '../reviews-list/reviews-list.tsx';
+import { ReviewForm } from '../review-form/review-form.tsx';
 
 type ReviewsProps = {
   offerId: string;
