@@ -2,7 +2,8 @@ import {Fragment, useState, FormEvent, ChangeEvent} from 'react';
 import {useAppDispatch, useAppSelector} from '../../store';
 import {postComment} from '../../store/api-actions';
 
-const MAX_LENGTH = 50;
+const MIN_LENGTH = 50;
+const MAX_LENGTH = 300;
 
 const RATING = [
   {value: 5, label: 'perfect'},
@@ -23,6 +24,7 @@ function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
     comment: '',
     rating: 0,
   });
+  const [error, setError] = useState<string | null>(null);
 
   const handleReviewFormChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const {name, value} = e.target;
@@ -30,20 +32,44 @@ function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
       ...formData,
       [name]: name === 'rating' ? Number(value) : value
     });
+    if (error) {
+      setError(null);
+    }
   };
 
   const handleReviewFormSubmit = (evt: FormEvent) => {
     evt.preventDefault();
-    if (formData.comment && formData.rating) {
-      dispatch(postComment({offerId, commentData: formData}))
-        .unwrap()
-        .then(() => {
-          setFormData({comment: '', rating: 0});
-        });
+    setError(null);
+
+    if (formData.comment.length < MIN_LENGTH) {
+      setError(`Comment must be at least ${MIN_LENGTH} characters`);
+      return;
     }
+
+    if (formData.comment.length > MAX_LENGTH) {
+      setError(`Comment cannot exceed ${MAX_LENGTH} characters`);
+      return;
+    }
+
+    if (formData.rating === 0) {
+      setError('Please select a rating');
+      return;
+    }
+
+    dispatch(postComment({offerId, commentData: formData}))
+      .unwrap()
+      .then(() => {
+        setFormData({comment: '', rating: 0});
+      })
+      .catch(() => {
+        setError('Failed to post comment. Please try again.');
+      });
   };
 
-  const isFormDisabled = isSending || formData.comment.length < MAX_LENGTH || formData.rating === 0;
+  const isFormDisabled = isSending ||
+    formData.comment.length < MIN_LENGTH ||
+    formData.comment.length > MAX_LENGTH ||
+    formData.rating === 0;
 
   return (
     <form
@@ -54,6 +80,9 @@ function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
       <label className="reviews__label form__label" htmlFor="review">
         Your review
       </label>
+
+      {error && <div className="reviews__error" style={{color: 'red', marginBottom: '10px'}}>{error}</div>}
+
       <div className="reviews__rating-form form__rating">
         {RATING.map(({value, label}) => (
           <Fragment key={value}>
@@ -87,14 +116,13 @@ function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
         value={formData.comment}
         onChange={handleReviewFormChange}
         disabled={isSending}
-      >
-      </textarea>
+      />
       <div className="reviews__button-wrapper">
         <p className="reviews__help">
           To submit review please make sure to set{' '}
           <span className="reviews__star">rating</span> and describe your
           stay with at least{' '}
-          <b className="reviews__text-amount">{MAX_LENGTH} characters</b>.
+          <b className="reviews__text-amount">{MIN_LENGTH} characters</b> and maximum of {MAX_LENGTH} characters.
         </p>
         <button
           className="reviews__submit form__submit button"
@@ -108,4 +136,4 @@ function ReviewForm({offerId}: ReviewFormProps): JSX.Element {
   );
 }
 
-export { ReviewForm };
+export {ReviewForm};
