@@ -170,3 +170,19 @@ export const toggleFavoriteAction = createAsyncThunk<
     return { id: data.id, isFavorite: data.isFavorite };
   }
 );
+
+export const fetchFavorites = createAsyncThunk<
+  CardProps[],
+  undefined,
+  {
+    dispatch: AppDispatch;
+    state: RootState;
+    extra: AxiosInstance;
+  }
+>(
+  'favorites/fetchFavorites',
+  async (_arg, { extra: api }) => {
+    const { data } = await api.get<CardProps[]>(APIRoute.Favorite);
+    return data;
+  }
+);
