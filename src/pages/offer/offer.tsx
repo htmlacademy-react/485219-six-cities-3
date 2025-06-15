@@ -10,9 +10,13 @@ import {useAppDispatch, useAppSelector} from '../../store';
 import {fetchOfferById, fetchNearbyOffers, clearCurrentOffer} from '../../store/offers-slice';
 import {Header} from '../../components/header/header.tsx';
 import {fetchComments} from '../../store/api-actions.ts';
+import {useNavigate} from 'react-router-dom';
+import {toggleFavoriteAction} from '../../store/api-actions.ts';
 
 const START_INDEX = 0;
 const MAX_NEARBY_OFFERS = 3;
+const NO = 0;
+const YES = 1;
 
 function Offer(): JSX.Element {
   const {id} = useParams<{ id: string }>();
@@ -23,7 +27,7 @@ function Offer(): JSX.Element {
   const offers = useAppSelector((state) => state.offers.offers);
   const isCurrentOfferLoading = useAppSelector((state) => state.offers.isCurrentOfferLoading);
   const currentOfferError = useAppSelector((state) => state.offers.currentOfferError);
-
+  const navigate = useNavigate();
   const [shouldRedirect, setShouldRedirect] = useState(false);
 
   useEffect(() => {
@@ -107,7 +111,20 @@ function Offer(): JSX.Element {
                 <h1 className="offer__name">
                   {currentOffer.cardTitle}
                 </h1>
-                <button className="offer__bookmark-button button" type="button">
+                <button
+                  className={`offer__bookmark-button button ${currentOffer.isFavorite ? 'offer__bookmark-button--active' : ''}`}
+                  type="button"
+                  onClick={() => {
+                    if (authorizationStatus !== AuthorizationStatus.Auth) {
+                      navigate(AppRoute.Login);
+                    } else {
+                      dispatch(toggleFavoriteAction({
+                        offerId: currentOffer.id,
+                        status: currentOffer.isFavorite ? NO : YES
+                      }));
+                    }
+                  }}
+                >
                   <svg className="offer__bookmark-icon" width="31" height="33">
                     <use xlinkHref="#icon-bookmark"></use>
                   </svg>

@@ -20,23 +20,29 @@ function App(): JSX.Element {
   }, [dispatch]);
 
   return (
+    <Routes location={location} key={location.pathname}> {/* Добавлено управление состоянием */}
+      <Route path={AppRoute.Main} element={<MainPage />} />
+      <Route path={AppRoute.Offer} element={<Offer />} />
+      <Route path={AppRoute.NotFound} element={<NotFound />} />
+      <Route
+        path={AppRoute.Favorites}
+        element={
+          <PrivateRoute>
+            <Favorites />
+          </PrivateRoute>
+        }
+      />
+      <Route path={AppRoute.Login} element={<Login />} />
+    </Routes>
+  );
+}
+
+function Root() {
+  return (
     <BrowserRouter>
-      <Routes>
-        <Route path={AppRoute.Main} element={<MainPage/>}/>
-        <Route path={AppRoute.Offer} element={<Offer/>}/>
-        <Route path={AppRoute.NotFound} element={<NotFound/>}/>
-        <Route
-          path={AppRoute.Favorites}
-          element={
-            <PrivateRoute>
-              <Favorites/>
-            </PrivateRoute>
-          }
-        />
-        <Route path={AppRoute.Login} element={<Login/>}/>
-      </Routes>
+      <App />
     </BrowserRouter>
   );
 }
 
-export {App};
+export { Root as App };

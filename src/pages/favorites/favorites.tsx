@@ -1,14 +1,21 @@
 import {FavoritesList} from '../../components/favorites-list/favorites-list.tsx';
 import {FavoritesEmpty} from '../../components/favorites-empty/favorites-empty.tsx';
-import {useAppSelector} from '../../store';
+import {useAppDispatch, useAppSelector} from '../../store';
 import {getFavoriteOffers} from '../../store/selectors';
 import {Header} from '../../components/header/header.tsx';
 import {AppRoute} from '../../components/utils/routes.ts';
 import {Link} from 'react-router-dom';
+import {useEffect} from 'react';
+import {fetchFavorites} from '../../store/api-actions.ts';
 
 function Favorites(): JSX.Element {
   const favoriteOffers = useAppSelector(getFavoriteOffers);
   const hasFavorites = favoriteOffers.length > 0;
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(fetchFavorites());
+  }, [dispatch]);
 
   return (
     <div className={`page ${!hasFavorites ? 'page--favorites-empty' : ''}`}>
